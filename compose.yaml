@@ -5,12 +5,13 @@ services:
     image: mcr.microsoft.com/mssql/server:2025-latest
     restart: unless-stopped
     environment:
-      TZ: America/Guatemala
       ACCEPT_EULA: "Y"
       MSSQL_PID: Express
       MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?MSSQL_SA_PASSWORD is required}
       MSSQL_MEMORY_LIMIT_MB: 4096
     volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
       - sqlserver-data:/var/opt/mssql
       - ./backups:/var/opt/mssql/backups
     networks:
@@ -28,7 +29,6 @@ services:
       dockerfile: Core/Dockerfile
     restart: unless-stopped
     environment:
-      TZ: America/Guatemala
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Server=database,1433;Database=AZESHERBD;User Id=azesher_app;Password=${DB_APP_PASSWORD};Encrypt=True;TrustServerCertificate=True
@@ -54,6 +54,8 @@ services:
       database:
         condition: service_healthy
     volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
       - data-protection:/home/app/.aspnet/DataProtection-Keys
     networks:
       - backend
@@ -67,21 +69,22 @@ services:
         VITE_API_BASE_URL: /api
         VITE_PUBLIC_APP_URL: https://sistema.azesher.com
     restart: unless-stopped
-    environment:
-      TZ: America/Guatemala
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     networks:
       - edge
 
   caddy:
     image: caddy:2.10-alpine
     restart: unless-stopped
-    environment:
-      TZ: America/Guatemala
     ports:
       - "80:80"
       - "443:443"
       - "443:443/udp"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
       - caddy-config:/config

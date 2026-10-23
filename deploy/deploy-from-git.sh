@@ -45,6 +45,19 @@ docker compose up -d database
 # Migración idempotente del lector/códigos de barras. sqlcmd interpreta los separadores GO.
 # La contraseña se obtiene del entorno del contenedor; el archivo .env nunca se ejecuta como Bash.
 MSSQL_SA_PASSWORD="$(docker compose exec -T database printenv MSSQL_SA_PASSWORD | tr -d '\r')"
+SQL_READY=0
+for _ in {1..30}; do
+  if docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
+    /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -Q "SELECT 1" >/dev/null; then
+    SQL_READY=1
+    break
+  fi
+  sleep 2
+done
+if [[ "$SQL_READY" != "1" ]]; then
+  printf 'SQL Server no estuvo disponible a tiempo para ejecutar las migraciones.\n' >&2
+  exit 1
+fi
 docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
   /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -I -d AZESHERBD \
   < Database/Migrations/20261007_codigos_barras_lector_movil.sql
