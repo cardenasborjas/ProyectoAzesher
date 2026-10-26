@@ -8,7 +8,7 @@ BEGIN
     IF @Entidad = 'sucursales'
         SELECT id_sucursal Id, nombre Nombre, direccion Direccion, telefono Telefono, color_identificacion ColorIdentificacion FROM dbo.sucursal WHERE @Query='' OR nombre LIKE '%'+@Query+'%' ORDER BY nombre;
     ELSE IF @Entidad = 'proveedores'
-        SELECT id_proveedor Id, nombre Nombre, telefono Telefono, direccion Direccion FROM dbo.proveedor WHERE @Query='' OR nombre LIKE '%'+@Query+'%' ORDER BY nombre;
+        SELECT id_proveedor Id, nombre Nombre, telefono Telefono, direccion Direccion, activo Activo FROM dbo.proveedor WHERE @Query='' OR nombre LIKE '%'+@Query+'%' ORDER BY nombre;
     ELSE IF @Entidad = 'productos'
         SELECT p.id_producto Id, p.cod_producto Codigo, p.nombre Nombre, p.descripcion Descripcion, p.precio Precio, p.id_categoria IdCategoria, cp.nombre Categoria
         FROM dbo.producto p LEFT JOIN dbo.categoria_producto cp ON cp.id_categoria=p.id_categoria
@@ -16,7 +16,7 @@ BEGIN
     ELSE IF @Entidad = 'proveedor-producto'
         SELECT (pp.id_proveedor * 1000000 + pp.id_producto) Id, pp.id_proveedor IdProveedor, pr.nombre Proveedor, pp.id_producto IdProducto, p.nombre Producto, pp.activo Activo FROM dbo.proveedor_producto pp JOIN dbo.proveedor pr ON pr.id_proveedor=pp.id_proveedor JOIN dbo.producto p ON p.id_producto=pp.id_producto WHERE @Query='' OR pr.nombre LIKE '%'+@Query+'%' OR p.nombre LIKE '%'+@Query+'%' ORDER BY pr.nombre,p.nombre;
     ELSE IF @Entidad = 'vendedores'
-        SELECT v.id_vendedor Id, v.nombre Nombre, v.telefono Telefono, v.id_sucursal IdSucursal, s.nombre Sucursal FROM dbo.vendedor v LEFT JOIN dbo.sucursal s ON s.id_sucursal=v.id_sucursal WHERE @Query='' OR v.nombre LIKE '%'+@Query+'%' ORDER BY v.nombre;
+        SELECT v.id_vendedor Id, v.nombre Nombre, v.telefono Telefono, v.id_sucursal IdSucursal, s.nombre Sucursal, v.activo Activo FROM dbo.vendedor v LEFT JOIN dbo.sucursal s ON s.id_sucursal=v.id_sucursal WHERE @Query='' OR v.nombre LIKE '%'+@Query+'%' ORDER BY v.nombre;
     ELSE IF @Entidad = 'monedas'
         SELECT id_moneda Id, codigo Codigo, nombre Nombre, simbolo Simbolo, activo Activo FROM dbo.moneda WHERE @Query='' OR nombre LIKE '%'+@Query+'%' OR codigo LIKE '%'+@Query+'%' ORDER BY nombre;
     ELSE IF @Entidad = 'tipos-pos'

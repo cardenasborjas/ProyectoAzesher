@@ -16,11 +16,11 @@ const bonusTypes = [
 
 const catalogs = {
   sucursales: { label: "Sucursales", fields: [["nombre", "Nombre", "text", true], ["direccion", "Dirección"], ["telefono", "Teléfono"], ["colorIdentificacion", "Color", "color", true]] },
-  proveedores: { label: "Proveedores", fields: [["nombre", "Nombre", "text", true], ["telefono", "Teléfono"], ["direccion", "Dirección"]] },
+  proveedores: { label: "Proveedores", fields: [["nombre", "Nombre", "text", true], ["telefono", "Teléfono"], ["direccion", "Dirección"], ["activo", "Activo", "checkbox"]], columns: [["nombre", "Nombre"], ["telefono", "Teléfono"], ["direccion", "Dirección"], ["activo", "Estado"]], canDisable: true },
   productos: { label: "Productos", fields: [["codigo", "Código", "text", true], ["nombre", "Nombre", "text", true], ["descripcion", "Descripción"], ["precio", "Precio", "number", true], ["idCategoria", "Categoría", "select:categorias-producto", true]], columns: [["codigo", "Código"], ["nombre", "Nombre"], ["categoria", "Categoría"], ["precio", "Precio"]] },
   "categorias-producto": { label: "Categorías de producto", fields: [["nombre", "Nombre", "text", true], ["descripcion", "Descripción"], ["activo", "Activo", "checkbox"]], canDisable: true },
   "proveedor-producto": { label: "Productos por proveedor", fields: [["idProveedor", "Proveedor", "select:proveedores", true], ["idProducto", "Producto", "select:productos", true]], columns: [["proveedor", "Proveedor"], ["producto", "Producto"], ["activo", "Estado"]], canDisable: true },
-  vendedores: { label: "Vendedores", fields: [["nombre", "Nombre", "text", true], ["telefono", "Teléfono"], ["idSucursal", "Sucursal", "select:sucursales", true]], columns: [["nombre", "Nombre"], ["telefono", "Teléfono"], ["sucursal", "Sucursal"]] },
+  vendedores: { label: "Vendedores", fields: [["nombre", "Nombre", "text", true], ["telefono", "Teléfono"], ["idSucursal", "Sucursal", "select:sucursales", true], ["activo", "Activo", "checkbox"]], columns: [["nombre", "Nombre"], ["telefono", "Teléfono"], ["sucursal", "Sucursal"], ["activo", "Estado"]], canDisable: true },
   monedas: { label: "Monedas", fields: [["codigo", "Código", "text", true], ["nombre", "Nombre", "text", true], ["simbolo", "Símbolo", "text", true], ["activo", "Activo", "checkbox"]], canDisable: true },
   "tipos-pos": { label: "Tipos de POS", fields: [["nombre", "Nombre", "text", true], ["activo", "Activo", "checkbox"]], canDisable: true },
   "motivos-salida": { label: "Motivos de salida", fields: [["codigo", "Código interno", "text", true], ["nombre", "Nombre visible", "text", true], ["orden", "Orden", "number", true], ["activo", "Activo", "checkbox"]], canDisable: true },

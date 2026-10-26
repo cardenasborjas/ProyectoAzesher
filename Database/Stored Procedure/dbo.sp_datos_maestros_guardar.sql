@@ -14,8 +14,8 @@ BEGIN
     END
     ELSE IF @Entidad='proveedores'
     BEGIN
-        IF @Id IS NULL BEGIN INSERT dbo.proveedor(nombre,telefono,direccion) VALUES(JSON_VALUE(@Datos,'$.nombre'),JSON_VALUE(@Datos,'$.telefono'),JSON_VALUE(@Datos,'$.direccion')); SELECT CONVERT(INT,SCOPE_IDENTITY()); END
-        ELSE BEGIN UPDATE dbo.proveedor SET nombre=JSON_VALUE(@Datos,'$.nombre'),telefono=JSON_VALUE(@Datos,'$.telefono'),direccion=JSON_VALUE(@Datos,'$.direccion') WHERE id_proveedor=@Id; SELECT @Id; END
+        IF @Id IS NULL BEGIN INSERT dbo.proveedor(nombre,telefono,direccion,activo) VALUES(JSON_VALUE(@Datos,'$.nombre'),JSON_VALUE(@Datos,'$.telefono'),JSON_VALUE(@Datos,'$.direccion'),COALESCE(TRY_CONVERT(BIT,JSON_VALUE(@Datos,'$.activo')),1)); SELECT CONVERT(INT,SCOPE_IDENTITY()); END
+        ELSE BEGIN UPDATE dbo.proveedor SET nombre=JSON_VALUE(@Datos,'$.nombre'),telefono=JSON_VALUE(@Datos,'$.telefono'),direccion=JSON_VALUE(@Datos,'$.direccion'),activo=COALESCE(TRY_CONVERT(BIT,JSON_VALUE(@Datos,'$.activo')),1) WHERE id_proveedor=@Id; SELECT @Id; END
     END
     ELSE IF @Entidad='productos'
     BEGIN
@@ -26,13 +26,14 @@ BEGIN
     ELSE IF @Entidad='proveedor-producto'
     BEGIN
         DECLARE @idProveedor INT=TRY_CONVERT(INT,JSON_VALUE(@Datos,'$.idProveedor')), @idProducto INT=TRY_CONVERT(INT,JSON_VALUE(@Datos,'$.idProducto'));
+        IF NOT EXISTS(SELECT 1 FROM dbo.proveedor WHERE id_proveedor=@idProveedor AND activo=1) THROW 50017,'El proveedor está desactivado.',1;
         MERGE dbo.proveedor_producto AS t USING (SELECT @idProveedor id_proveedor,@idProducto id_producto) s ON t.id_proveedor=s.id_proveedor AND t.id_producto=s.id_producto WHEN MATCHED THEN UPDATE SET activo=1,fecha_asignacion=GETDATE() WHEN NOT MATCHED THEN INSERT(id_proveedor,id_producto,activo) VALUES(s.id_proveedor,s.id_producto,1);
         SELECT @idProducto;
     END
     ELSE IF @Entidad='vendedores'
     BEGIN
-        IF @Id IS NULL BEGIN INSERT dbo.vendedor(nombre,telefono,id_sucursal) VALUES(JSON_VALUE(@Datos,'$.nombre'),JSON_VALUE(@Datos,'$.telefono'),TRY_CONVERT(INT,JSON_VALUE(@Datos,'$.idSucursal'))); SELECT CONVERT(INT,SCOPE_IDENTITY()); END
-        ELSE BEGIN UPDATE dbo.vendedor SET nombre=JSON_VALUE(@Datos,'$.nombre'),telefono=JSON_VALUE(@Datos,'$.telefono'),id_sucursal=TRY_CONVERT(INT,JSON_VALUE(@Datos,'$.idSucursal')) WHERE id_vendedor=@Id; SELECT @Id; END
+        IF @Id IS NULL BEGIN INSERT dbo.vendedor(nombre,telefono,id_sucursal,activo) VALUES(JSON_VALUE(@Datos,'$.nombre'),JSON_VALUE(@Datos,'$.telefono'),TRY_CONVERT(INT,JSON_VALUE(@Datos,'$.idSucursal')),COALESCE(TRY_CONVERT(BIT,JSON_VALUE(@Datos,'$.activo')),1)); SELECT CONVERT(INT,SCOPE_IDENTITY()); END
+        ELSE BEGIN UPDATE dbo.vendedor SET nombre=JSON_VALUE(@Datos,'$.nombre'),telefono=JSON_VALUE(@Datos,'$.telefono'),id_sucursal=TRY_CONVERT(INT,JSON_VALUE(@Datos,'$.idSucursal')),activo=COALESCE(TRY_CONVERT(BIT,JSON_VALUE(@Datos,'$.activo')),1) WHERE id_vendedor=@Id; SELECT @Id; END
     END
     ELSE IF @Entidad='monedas'
     BEGIN

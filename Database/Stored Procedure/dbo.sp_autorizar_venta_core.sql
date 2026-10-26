@@ -32,9 +32,9 @@ BEGIN
 
         IF NOT EXISTS (
             SELECT 1 FROM dbo.vendedor
-            WHERE id_vendedor = @IdVendedor AND id_sucursal = @IdSucursal
+            WHERE id_vendedor = @IdVendedor AND id_sucursal = @IdSucursal AND activo = 1
         )
-            THROW 50002, 'El vendedor seleccionado no pertenece a la sucursal de la venta.', 1;
+            THROW 50002, 'El vendedor seleccionado no pertenece a la sucursal o está desactivado.', 1;
 
         DECLARE @Detalles TABLE (
             IdProducto INT NOT NULL PRIMARY KEY,

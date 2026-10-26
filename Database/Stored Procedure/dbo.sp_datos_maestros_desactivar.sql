@@ -2,7 +2,9 @@ CREATE OR ALTER PROCEDURE dbo.sp_datos_maestros_desactivar @Entidad VARCHAR(40),
 AS
 BEGIN
     SET NOCOUNT ON;
-    IF @Entidad='monedas' UPDATE dbo.moneda SET activo=0 WHERE id_moneda=@Id;
+    IF @Entidad='proveedores' UPDATE dbo.proveedor SET activo=0 WHERE id_proveedor=@Id;
+    ELSE IF @Entidad='vendedores' UPDATE dbo.vendedor SET activo=0 WHERE id_vendedor=@Id;
+    ELSE IF @Entidad='monedas' UPDATE dbo.moneda SET activo=0 WHERE id_moneda=@Id;
     ELSE IF @Entidad='tipos-pos' UPDATE dbo.tipo_pos SET activo=0 WHERE id_tipo_pos=@Id;
     ELSE IF @Entidad='clientes-credito' UPDATE dbo.cliente_credito SET activo=0 WHERE id_cliente_credito=@Id;
     ELSE IF @Entidad='categorias-producto' UPDATE dbo.categoria_producto SET activo=0 WHERE id_categoria=@Id;

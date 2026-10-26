@@ -1,6 +1,7 @@
 CREATE OR ALTER PROCEDURE dbo.sp_registrar_entrada_pedido_core @IdSucursal INT,@IdProveedor INT,@IdUsuario INT,@Fecha DATETIME=NULL,@MetodoPago VARCHAR(30),@Observaciones VARCHAR(500)=NULL,@Detalles NVARCHAR(MAX) AS
 BEGIN
  SET NOCOUNT ON; SET XACT_ABORT ON;
+ IF NOT EXISTS(SELECT 1 FROM dbo.proveedor WHERE id_proveedor=@IdProveedor AND activo=1) THROW 50008,'El proveedor está desactivado y no puede recibir nuevas entradas.',1;
  IF NOT EXISTS(SELECT 1 FROM OPENJSON(@Detalles)) THROW 50002,'El pedido debe incluir al menos un producto.',1;
  BEGIN TRANSACTION;
  DECLARE @Detalle TABLE(IdProducto INT,Cantidad INT,CostoUnitario DECIMAL(12,2));
