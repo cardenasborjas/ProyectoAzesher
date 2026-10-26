@@ -80,6 +80,25 @@ docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
   /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -I -d AZESHERBD \
   < Database/Migrations/20261026_proveedores_vendedores_activos.sql
 
+# Los procedimientos viven en el host del despliegue, no dentro del contenedor
+# de SQL Server. Se envían individualmente por stdin para evitar rutas :r.
+PROVEEDORES_VENDEDORES_PROCEDURES=(
+  "Database/Stored Procedure/dbo.sp_datos_maestros_listar.sql"
+  "Database/Stored Procedure/dbo.sp_datos_maestros_guardar.sql"
+  "Database/Stored Procedure/dbo.sp_datos_maestros_desactivar.sql"
+  "Database/Stored Procedure/dbo.sp_obtener_proveedores_entrada_core.sql"
+  "Database/Stored Procedure/dbo.sp_buscar_proveedores_core.sql"
+  "Database/Stored Procedure/dbo.sp_crear_producto_entrada_core.sql"
+  "Database/Stored Procedure/dbo.sp_buscar_productos_entrada_core.sql"
+  "Database/Stored Procedure/dbo.sp_registrar_entrada_pedido_core.sql"
+  "Database/Stored Procedure/dbo.sp_autorizar_venta_core.sql"
+)
+for procedure_file in "${PROVEEDORES_VENDEDORES_PROCEDURES[@]}"; do
+  docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
+    /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -I -d AZESHERBD \
+    < "$procedure_file"
+done
+
 # Las migraciones ya se ejecutaron explícitamente arriba. Evitamos volver a
 # ejecutar el servicio one-shot y arrancamos los servicios de aplicación.
 docker compose up -d --no-deps api frontend caddy
