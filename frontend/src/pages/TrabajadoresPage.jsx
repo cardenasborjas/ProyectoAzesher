@@ -4,6 +4,7 @@ import NotificationToast from "../components/NotificationToast";
 import { useAuth } from "../context/AuthContext";
 import { ChevronDown, ChevronUp, ChevronsUpDown, KeyRound, Pencil, Plus, Trash2 } from "lucide-react";
 import { isStrongPassword, passwordHint } from "../utils/passwordPolicy";
+import { formatGuatemalaDateTime, guatemalaInputDate, guatemalaMonthStart } from "../utils/guatemalaDate";
 import {
   Bar,
   BarChart as ReBarChart,
@@ -26,8 +27,8 @@ const money = new Intl.NumberFormat("es-GT", {
   style: "currency",
   currency: "GTQ",
 });
-const today = new Date().toISOString().slice(0, 10);
-const monthStart = `${today.slice(0, 7)}-01`;
+const today = guatemalaInputDate();
+const monthStart = guatemalaMonthStart();
 const passwordExpiry = new Date(Date.now() + 90 * 86400000)
   .toISOString()
   .slice(0, 10);
@@ -835,7 +836,7 @@ function Sales() {
         </tr></thead><tbody>
         {visibleRows.map((row) => (
           <tr key={`${row.idVenta}-${row.recibo}`} className="border-t">
-            <Td>{new Date(row.fecha).toLocaleString("es-GT")}</Td>
+            <Td>{formatGuatemalaDateTime(row.fecha)}</Td>
             <Td strong>{row.trabajador}</Td>
             <Td>{row.recibo || "—"}</Td>
             <Td>{row.cliente || "Consumidor Final"}</Td>

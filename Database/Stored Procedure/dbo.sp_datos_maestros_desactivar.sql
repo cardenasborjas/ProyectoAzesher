@@ -2,7 +2,8 @@ CREATE OR ALTER PROCEDURE dbo.sp_datos_maestros_desactivar @Entidad VARCHAR(40),
 AS
 BEGIN
     SET NOCOUNT ON;
-    IF @Entidad='proveedores' UPDATE dbo.proveedor SET activo=0 WHERE id_proveedor=@Id;
+    IF @Entidad='sucursales' UPDATE dbo.sucursal SET activo=0 WHERE id_sucursal=@Id;
+    ELSE IF @Entidad='proveedores' UPDATE dbo.proveedor SET activo=0 WHERE id_proveedor=@Id;
     ELSE IF @Entidad='vendedores' UPDATE dbo.vendedor SET activo=0 WHERE id_vendedor=@Id;
     ELSE IF @Entidad='monedas' UPDATE dbo.moneda SET activo=0 WHERE id_moneda=@Id;
     ELSE IF @Entidad='tipos-pos' UPDATE dbo.tipo_pos SET activo=0 WHERE id_tipo_pos=@Id;

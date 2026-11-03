@@ -10,6 +10,7 @@ import PaymentMethodsPanel from '../components/PaymentMethodsPanel';
 import CreditCustomerModal from '../components/CreditCustomerModal';
 import PhoneScannerModal from '../components/PhoneScannerModal';
 import MobileCameraScannerModal from '../components/MobileCameraScannerModal';
+import { guatemalaInputDate } from '../utils/guatemalaDate';
 
 const money = new Intl.NumberFormat('es-GT', {
     style: 'currency',
@@ -92,7 +93,7 @@ export default function VentasPage() {
                 const date = new Date();
                 date.setMonth(date.getMonth() + index + 1);
                 const amount = index === count - 1 ? Number((pending - baseAmount * (count - 1)).toFixed(2)) : baseAmount;
-                return { number: index + 1, date: existing?.date || date.toISOString().slice(0, 10), amount };
+                return { number: index + 1, date: existing?.date || guatemalaInputDate(date), amount };
             });
             return { ...current, credit: { ...current.credit, schedule } };
         });
@@ -373,7 +374,7 @@ export default function VentasPage() {
                         </div>
 
                         <form onSubmit={readBarcode} className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                            <div className="hidden flex-col gap-2 md:flex lg:flex-row lg:items-end">
+                            <div className="hidden flex-col gap-2 lg:flex lg:flex-row lg:items-end">
                                 <label className="flex-1">
                                     <span className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-600">Lector de código de barras</span>
                                     <span className="relative block">
@@ -384,8 +385,8 @@ export default function VentasPage() {
                                 <button type="submit" disabled={readingBarcode || !barcode.trim()} className="button-primary h-11 justify-center px-5 disabled:opacity-50"><Barcode className="h-4 w-4" />{readingBarcode ? 'Buscando…' : 'Agregar código'}</button>
                                 <button type="button" onClick={() => setPhoneScannerOpen(true)} disabled={!effectiveSucursalId} className="button-secondary h-11 justify-center px-5 disabled:opacity-50"><Smartphone className="h-4 w-4" />Usar teléfono</button>
                             </div>
-                            <p className="mt-2 hidden text-xs text-slate-500 md:block">El lector físico escribe el código y lo agrega al enviar Enter. El teléfono puede conectarse por QR o por enlace.</p>
-                            <div className="space-y-2 md:hidden">
+                            <p className="mt-2 hidden text-xs text-slate-500 lg:block">El lector físico escribe el código y lo agrega al enviar Enter. El teléfono puede conectarse por QR o por enlace.</p>
+                            <div className="space-y-2 lg:hidden">
                                 <label className="block text-sm font-semibold text-slate-700" htmlFor="mobile-barcode">Código del producto</label>
                                 <input id="mobile-barcode" value={barcode} onChange={event => setBarcode(event.target.value)} placeholder="Escanea o escribe el código" autoComplete="off" inputMode="text" className="h-12 w-full rounded-xl border border-slate-300 bg-white px-4 font-mono text-sm outline-none focus:border-[var(--branch-color)]" />
                                 <div className="grid grid-cols-2 gap-2">
@@ -468,7 +469,7 @@ export default function VentasPage() {
                             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{cartItems.length} líneas</span>
                         </div>
 
-                        <div className="hidden overflow-x-auto md:block">
+                        <div className="hidden overflow-x-auto lg:block">
                             <table className="min-w-full divide-y divide-slate-100 text-sm">
                                 <thead className="bg-slate-50 text-left text-xs uppercase tracking-[0.2em] text-slate-500">
                                     <tr>
@@ -511,7 +512,7 @@ export default function VentasPage() {
                                 </tbody>
                             </table>
                         </div>
-                        <div className="divide-y divide-slate-100 md:hidden">
+                        <div className="divide-y divide-slate-100 lg:hidden">
                             {cartItems.length === 0 ? <p className="px-4 py-8 text-sm text-slate-500">Aún no agregas productos al pedido.</p> : cartItems.map((item) => (
                                 <article key={item.idProducto} className="space-y-3 p-4">
                                     <div className="flex min-w-0 items-start justify-between gap-3">

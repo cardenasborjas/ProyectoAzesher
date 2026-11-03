@@ -9,8 +9,8 @@ BEGIN
     BEGIN
         DECLARE @nombreS VARCHAR(150)=JSON_VALUE(@Datos,'$.nombre'), @color VARCHAR(7)=UPPER(JSON_VALUE(@Datos,'$.colorIdentificacion'));
         IF NULLIF(LTRIM(RTRIM(@nombreS)),'') IS NULL OR @color NOT LIKE '#[0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F]' THROW 50003, 'Nombre y color hexadecimal son obligatorios.',1;
-        IF @Id IS NULL BEGIN INSERT dbo.sucursal(nombre,direccion,telefono,color_identificacion) VALUES(@nombreS,JSON_VALUE(@Datos,'$.direccion'),JSON_VALUE(@Datos,'$.telefono'),@color); SELECT CONVERT(INT,SCOPE_IDENTITY()); END
-        ELSE BEGIN UPDATE dbo.sucursal SET nombre=@nombreS,direccion=JSON_VALUE(@Datos,'$.direccion'),telefono=JSON_VALUE(@Datos,'$.telefono'),color_identificacion=@color WHERE id_sucursal=@Id; SELECT @Id; END
+        IF @Id IS NULL BEGIN INSERT dbo.sucursal(nombre,direccion,telefono,color_identificacion,activo) VALUES(@nombreS,JSON_VALUE(@Datos,'$.direccion'),JSON_VALUE(@Datos,'$.telefono'),@color,COALESCE(TRY_CONVERT(BIT,JSON_VALUE(@Datos,'$.activo')),1)); SELECT CONVERT(INT,SCOPE_IDENTITY()); END
+        ELSE BEGIN UPDATE dbo.sucursal SET nombre=@nombreS,direccion=JSON_VALUE(@Datos,'$.direccion'),telefono=JSON_VALUE(@Datos,'$.telefono'),color_identificacion=@color,activo=COALESCE(TRY_CONVERT(BIT,JSON_VALUE(@Datos,'$.activo')),1) WHERE id_sucursal=@Id; SELECT @Id; END
     END
     ELSE IF @Entidad='proveedores'
     BEGIN

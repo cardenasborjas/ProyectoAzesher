@@ -208,17 +208,17 @@ function EstadoCuenta({ branch, initialQuery = "", initialClientId = null }) {
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Nombre o NIT"
         />
-        <DateText
+        <label className="text-xs font-semibold text-slate-600">Movimientos desde<DateText
           value={range.fechaDesde}
           set={(value) => setRange({ ...range, fechaDesde: value })}
-        />
-        <DateText
+        /></label>
+        <label className="text-xs font-semibold text-slate-600">Movimientos hasta<DateText
           value={range.fechaHasta}
           set={(value) => setRange({ ...range, fechaHasta: value })}
-        />
-        <button onClick={search} className="button-primary">
+        /></label>
+        <button onClick={() => selected ? consult(selected) : search()} className="button-primary">
           <Search className="h-4 w-4" />
-          Buscar
+          {selected ? "Aplicar fechas" : "Buscar"}
         </button>
         <button onClick={clear} className="button-secondary">
           <RotateCcw className="h-4 w-4" />

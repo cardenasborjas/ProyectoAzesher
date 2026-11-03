@@ -83,7 +83,15 @@ export default function InventarioProductosPage() {
     if (product) { setPriceEditor(product); setNewPrice(String(product.precioSolicitado ?? product.precio)); }
   }, [products, searchParams, priceEditor]);
 
-  const openPrice = (event, product) => { event?.stopPropagation(); setPriceEditor(product); setNewPrice(String(product.precioSolicitado ?? product.precio)); };
+  const openPrice = (event, product) => {
+    event?.stopPropagation();
+    if (isAdministrator && !product.idSolicitudPrecio) {
+      navigate(`/configuracion/datos-maestros?entidad=productos&editar=${product.idProducto}`);
+      return;
+    }
+    setPriceEditor(product);
+    setNewPrice(String(product.precioSolicitado ?? product.precio));
+  };
   const closePrice = () => { setPriceEditor(null); setNewPrice(''); if (searchParams.has('producto')) { const next = new URLSearchParams(searchParams); next.delete('producto'); next.delete('solicitudPrecio'); setSearchParams(next, { replace: true }); } };
   const savePrice = async () => {
     const price = Number(newPrice);

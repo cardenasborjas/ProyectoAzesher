@@ -20,7 +20,7 @@ BEGIN
     FROM 
         dbo.sucursal
     WHERE 
-        (@IdSucursalUsuario IS NULL OR id_sucursal = @IdSucursalUsuario)
+        activo=1 AND (@IdSucursalUsuario IS NULL OR id_sucursal = @IdSucursalUsuario)
     ORDER BY 
         nombre ASC;
 END

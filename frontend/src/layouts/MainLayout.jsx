@@ -28,6 +28,7 @@ import {
   ContactRound,
   Star,
   ScrollText,
+  TrendingUp,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -348,6 +349,9 @@ export default function MainLayout({ children }) {
               <SubLink to="/reportes/consolidado" icon={BarChart3}>
                 Listado de reportes
               </SubLink>
+              <SubLink to="/reportes/ganancias" icon={TrendingUp}>
+                Control de ganancias
+              </SubLink>
             </MenuGroup>
           )}
           {hasModuleAccess("trabajadores") && (
@@ -397,6 +401,9 @@ export default function MainLayout({ children }) {
           {/* Botón de Hamburguesa para colapsar/abrir el menú */}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            type="button"
+            aria-label={isSidebarOpen ? "Cerrar menú principal" : "Abrir menú principal"}
+            aria-expanded={isSidebarOpen}
             className="p-2 text-slate-400 hover:text-brand-teal hover:bg-teal-50 rounded-lg transition-colors focus:outline-none"
           >
             <Menu className="h-6 w-6" />
@@ -444,7 +451,7 @@ export default function MainLayout({ children }) {
             <div className="hidden sm:block h-8 w-px bg-gray-200 mx-1"></div>
 
             {/* 3. Perfil de Usuario */}
-            <div className="relative"><button type="button" onClick={() => setIsProfileOpen((value) => !value)} title="Opciones de perfil" className="group flex items-center gap-3 rounded-lg p-1.5 transition-colors hover:bg-slate-50">
+            <div className="relative"><button type="button" onClick={() => setIsProfileOpen((value) => !value)} title="Opciones de perfil" aria-label="Opciones de perfil" aria-expanded={isProfileOpen} className="group flex items-center gap-3 rounded-lg p-1.5 transition-colors hover:bg-slate-50">
               {/* Avatar circular */}
               <div className="h-9 w-9 bg-brand-teal rounded-full flex items-center justify-center text-white shadow-sm group-hover:shadow-md transition-shadow">
                 <UserIcon className="h-5 w-5" />
@@ -483,6 +490,8 @@ function MenuGroup({ label, icon: Icon, open, active, onClick, children, mobileH
       <button
         type="button"
         onClick={onClick}
+        aria-expanded={open}
+        aria-label={`${open ? "Cerrar" : "Abrir"} ${label}`}
         className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${active ? "bg-brand-teal text-white" : "text-slate-600 hover:bg-slate-50"}`}
       >
         <Icon className="h-5 w-5 min-w-[20px]" />

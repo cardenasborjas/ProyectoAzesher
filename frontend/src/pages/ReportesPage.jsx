@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Download, Printer, Search } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
+import { guatemalaInputDate, guatemalaMonthStart } from '../utils/guatemalaDate';
 import { useAuth } from '../context/AuthContext';
 
 const money = new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' });
-const inputDate = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-const initialRange = () => { const today = new Date(); return { fechaDesde: inputDate(new Date(today.getFullYear(), today.getMonth(), 1)), fechaHasta: inputDate(today) }; };
+const initialRange = () => ({ fechaDesde: guatemalaMonthStart(), fechaHasta: guatemalaInputDate() });
 export default function ReportesPage() {
     const { selectedSucursalId } = useAuth();
     const [dates, setDates] = useState(initialRange);

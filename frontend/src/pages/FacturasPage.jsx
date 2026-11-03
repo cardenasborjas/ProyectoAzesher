@@ -2,12 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, ChevronsUpDown, ExternalLink, Printer, Search, Trash2, X } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
+import { formatGuatemalaDateTime, guatemalaInputDate, guatemalaMonthStart } from '../utils/guatemalaDate';
 import { useAuth } from '../context/AuthContext';
 import NotificationToast from '../components/NotificationToast';
 import { openBlobInNewTab } from '../utils/blobFiles';
 
-const firstDay = () => { const date = new Date(); return new Date(date.getFullYear(), date.getMonth(), 1).toISOString().slice(0, 10); };
-const today = () => new Date().toISOString().slice(0, 10);
+const firstDay = () => guatemalaMonthStart();
+const today = () => guatemalaInputDate();
 const money = new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' });
 
 export default function FacturasPage() {

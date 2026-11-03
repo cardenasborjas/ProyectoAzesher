@@ -6,7 +6,7 @@ BEGIN
     SET @Query = LTRIM(RTRIM(ISNULL(@Query, '')));
 
     IF @Entidad = 'sucursales'
-        SELECT id_sucursal Id, nombre Nombre, direccion Direccion, telefono Telefono, color_identificacion ColorIdentificacion FROM dbo.sucursal WHERE @Query='' OR nombre LIKE '%'+@Query+'%' ORDER BY nombre;
+        SELECT id_sucursal Id, nombre Nombre, direccion Direccion, telefono Telefono, color_identificacion ColorIdentificacion, activo Activo FROM dbo.sucursal WHERE @Query='' OR nombre LIKE '%'+@Query+'%' ORDER BY nombre;
     ELSE IF @Entidad = 'proveedores'
         SELECT id_proveedor Id, nombre Nombre, telefono Telefono, direccion Direccion, activo Activo FROM dbo.proveedor WHERE @Query='' OR nombre LIKE '%'+@Query+'%' ORDER BY nombre;
     ELSE IF @Entidad = 'productos'

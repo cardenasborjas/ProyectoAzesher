@@ -151,8 +151,13 @@ export const AuthProvider = ({ children }) => {
         String(branch.idSucursal) === String(idSucursal)
           ? { ...branch, ...changes }
           : branch,
-      );
+      ).filter(branch => branch.activo !== false);
       localStorage.setItem("sucursales", JSON.stringify(updated));
+      if (!updated.some(branch => String(branch.idSucursal) === String(selectedSucursalId))) {
+        const next = String(updated[0]?.idSucursal ?? "");
+        localStorage.setItem("selectedSucursalId", next);
+        setSelectedSucursalId(next);
+      }
       return updated;
     });
   };

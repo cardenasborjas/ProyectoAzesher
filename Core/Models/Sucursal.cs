@@ -17,6 +17,8 @@ public partial class Sucursal
 
     public string ColorIdentificacion { get; set; }
 
+    public bool Activo { get; set; }
+
     public virtual ICollection<Inventario> Inventarios { get; set; } = new List<Inventario>();
 
     public virtual ICollection<Recibo> Recibos { get; set; } = new List<Recibo>();

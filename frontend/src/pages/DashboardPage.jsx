@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient";
 import { useAuth } from "../context/AuthContext";
 import NotificationToast from "../components/NotificationToast";
+import LoadingIndicator from "../components/LoadingIndicator";
+import { guatemalaInputDate, guatemalaMonthStart } from "../utils/guatemalaDate";
 import { ArrowRight, Banknote, Boxes, CircleDollarSign, PackagePlus, ReceiptText, ShoppingCart, TrendingUp, TriangleAlert, Users } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const money = new Intl.NumberFormat("es-GT", { style: "currency", currency: "GTQ" });
-const inputDate = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 const compact = (value) => new Intl.NumberFormat("es-GT", { notation: "compact", maximumFractionDigits: 1 }).format(value);
 
 export default function DashboardPage() {
@@ -17,21 +18,30 @@ export default function DashboardPage() {
   const [todayReceipts, setTodayReceipts] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [notification, setNotification] = useState(null);
+  const [loading, setLoading] = useState(true);
   const branch = sucursales.find((item) => String(item.idSucursal) === String(selectedSucursalId));
   const branchColor = branch?.colorIdentificacion || "#008BA8";
   const chartColors = [branchColor, "#f59e0b", "#22c55e", "#8b5cf6", "#ef4444", "#64748b"];
   const displayName = user?.nombre || user?.unique_name || user?.name || "equipo";
   const load = useCallback(async () => {
     if (!selectedSucursalId) return;
-    const current = new Date(); const date = inputDate(current); const monthStart = inputDate(new Date(current.getFullYear(), current.getMonth(), 1));
+    const date = guatemalaInputDate(); const monthStart = guatemalaMonthStart();
+    const cacheKey = `dashboard:${selectedSucursalId}:${monthStart}`;
     try {
-      const [monthResponse, todayResponse, inventoryResponse] = await Promise.all([
-        axiosClient.get("/ventas/recibos", { params: { idSucursal: selectedSucursalId, fechaDesde: monthStart, fechaHasta: date } }),
-        axiosClient.get("/ventas/recibos", { params: { idSucursal: selectedSucursalId, fechaDesde: date, fechaHasta: date } }),
-        axiosClient.get("/inventario/productos", { params: { idSucursal: selectedSucursalId } }),
-      ]);
-      setReceipts(monthResponse.data.data || []); setTodayReceipts(todayResponse.data.data || []); setInventory(inventoryResponse.data.data || []);
-    } catch (error) { setNotification({ type: "error", message: error.response?.data?.message || "No fue posible cargar el resumen." }); }
+      const cached = JSON.parse(sessionStorage.getItem(cacheKey) || "null");
+      if (cached) { setReceipts(cached.receipts || []); setTodayReceipts(cached.todayReceipts || []); setInventory(cached.inventory || []); setLoading(false); }
+    } catch { sessionStorage.removeItem(cacheKey); }
+    setLoading(current => current && !receipts.length && !inventory.length);
+    const monthRequest = axiosClient.get("/ventas/recibos", { params: { idSucursal: selectedSucursalId, fechaDesde: monthStart, fechaHasta: date } });
+    const todayRequest = axiosClient.get("/ventas/recibos", { params: { idSucursal: selectedSucursalId, fechaDesde: date, fechaHasta: date } });
+    const inventoryRequest = axiosClient.get("/inventario/productos", { params: { idSucursal: selectedSucursalId } });
+    const [monthResult, todayResult, inventoryResult] = await Promise.allSettled([monthRequest, todayRequest, inventoryRequest]);
+    const nextReceipts = monthResult.status === "fulfilled" ? monthResult.value.data.data || [] : receipts;
+    const nextToday = todayResult.status === "fulfilled" ? todayResult.value.data.data || [] : todayReceipts;
+    const nextInventory = inventoryResult.status === "fulfilled" ? inventoryResult.value.data.data || [] : inventory;
+    setReceipts(nextReceipts); setTodayReceipts(nextToday); setInventory(nextInventory); setLoading(false);
+    try { sessionStorage.setItem(cacheKey, JSON.stringify({ receipts: nextReceipts, todayReceipts: nextToday, inventory: nextInventory, savedAt: Date.now() })); } catch { /* La caché es opcional. */ }
+    if ([monthResult, todayResult, inventoryResult].some(result => result.status === "rejected")) setNotification({ type: "warning", message: "Algunos datos del resumen no pudieron actualizarse; se muestra la última información disponible." });
   }, [selectedSucursalId]);
   useEffect(() => { load(); }, [load]);
   const validMonth = receipts.filter((row) => row.estado !== "Anulado");
@@ -47,6 +57,7 @@ export default function DashboardPage() {
   const shortcuts = [[ShoppingCart, "Nueva venta", "/ventas"], [ReceiptText, "Buscar recibos", "/ventas/recibos"], [Banknote, "Registrar abono", "/cobros/pagar"], [PackagePlus, "Entrada de pedido", "/inventarios/entrada-pedido"], [Users, "Clientes", "/clientes/listado"], [Boxes, "Inventario", "/inventarios/productos"]];
   return <div className="space-y-6">
     <NotificationToast notification={notification} onClose={() => setNotification(null)} />
+    {loading && <div className="relative min-h-24"><LoadingIndicator label="Actualizando resumen del negocio…" /></div>}
     <header className="dashboard-welcome"><div><p className="dashboard-eyebrow">{branch?.nombreSuc || "Resumen"}</p><h1>{displayName}</h1><p>Este es el movimiento de tu negocio al día de hoy.</p></div><button onClick={load} className="button-secondary">Actualizar datos</button></header>
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <Metric icon={CircleDollarSign} label="Ventas de hoy" value={money.format(metrics.today)} note={`${validToday.length} pagos recibidos`} tone="teal" />

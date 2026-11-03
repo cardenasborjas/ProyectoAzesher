@@ -4,13 +4,14 @@ import { useSearchParams } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
 import NotificationToast from '../components/NotificationToast';
 import { useAuth } from '../context/AuthContext';
+import { formatGuatemalaDateTime, guatemalaInputDate } from '../utils/guatemalaDate';
 
 const now = new Date();
-const today = now.toISOString().slice(0, 10);
+const today = guatemalaInputDate(now);
 const monthStart = `${today.slice(0, 7)}-01`;
 const activityInitial = { texto: '', idUsuario: '', idSucursal: '', modulo: '', accion: '', resultado: '', fechaDesde: monthStart, fechaHasta: today };
 const modules = ['Seguridad', 'Ventas', 'Inventarios', 'Facturación', 'Cobros', 'Operaciones', 'Trabajadores', 'Datos maestros'];
-const formatDate = value => value ? new Date(value).toLocaleString('es-GT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '—';
+const formatDate = formatGuatemalaDateTime;
 const money = new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' });
 
 export default function BitacoraPage() {

@@ -14,6 +14,7 @@ import ProveedoresPage from "../pages/ProveedoresPage";
 import ControlCajaPage from "../pages/ControlCajaPage";
 import ClientesPage from "../pages/ClientesPage";
 import ReportesPage from "../pages/ReportesPage";
+import ControlGananciasPage from "../pages/ControlGananciasPage";
 import DatosMaestrosPage from "../pages/DatosMaestrosPage";
 import TrasladosPage from "../pages/TrasladosPage";
 import CobrosPage from "../pages/CobrosPage";
@@ -251,6 +252,7 @@ export default function AppRouter() {
               </ProtectedRoute>
             }
           />
+          <Route path="/reportes/ganancias" element={<ProtectedRoute module="reportes"><MainLayout><ControlGananciasPage /></MainLayout></ProtectedRoute>} />
           <Route
             path="/configuracion/datos-maestros"
             element={

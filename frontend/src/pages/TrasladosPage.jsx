@@ -2,9 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Search, Trash2, X } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 import { useAuth } from '../context/AuthContext';
+import { guatemalaInputDate } from '../utils/guatemalaDate';
 import NotificationToast from '../components/NotificationToast';
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => guatemalaInputDate();
 export default function TrasladosPage({ mode = 'create' }) {
     const { selectedSucursalId, sucursales, isAdministrator } = useAuth(); const [products, setProducts] = useState([]); const [query, setQuery] = useState(''); const [items, setItems] = useState([]); const [destination, setDestination] = useState(''); const [notes, setNotes] = useState(''); const [confirm, setConfirm] = useState(false); const [notification, setNotification] = useState(null); const [created, setCreated] = useState(null); const [history, setHistory] = useState([]); const [filters, setFilters] = useState({ query: '', fechaDesde: '', fechaHasta: today() }); const filtersRef = useRef(filters); filtersRef.current = filters;
     const origin = sucursales.find(branch => String(branch.idSucursal) === String(selectedSucursalId));
