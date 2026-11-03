@@ -39,9 +39,9 @@ public static class EntradaPedidoDocumentService
                 if (!string.IsNullOrWhiteSpace(head.Observaciones)) column.Item().BorderLeft(3).BorderColor(Accent).Background("#F0F9FB").Padding(10).Text(text => { text.Span("Observaciones: ").Bold(); text.Span(head.Observaciones); });
                 column.Item().Table(table =>
                 {
-                    table.ColumnsDefinition(columns => { columns.ConstantColumn(85); columns.RelativeColumn(); columns.ConstantColumn(65); columns.ConstantColumn(85); columns.ConstantColumn(90); });
-                    table.Header(header => { foreach (var title in new[] { "Código", "Producto", "Cantidad", "Costo", "Subtotal" }) header.Cell().Background(Navy).Border(0.5f).BorderColor(Colors.White).Padding(8).Text(title).Bold().FontColor(Colors.White); });
-                    foreach (var item in rows) { Cell(table).Text(item.Codigo ?? item.IdProducto.ToString()); Cell(table).Text(item.ProductoNombre); Cell(table).AlignRight().Text(item.Cantidad.ToString()); Cell(table).AlignRight().Text($"Q {item.CostoUnitario:0.00}"); Cell(table).AlignRight().Text($"Q {item.Subtotal:0.00}").Bold(); }
+                    table.ColumnsDefinition(columns => { columns.ConstantColumn(70); columns.RelativeColumn(); columns.ConstantColumn(52); columns.ConstantColumn(68); columns.ConstantColumn(68); columns.ConstantColumn(76); });
+                    table.Header(header => { foreach (var title in new[] { "Código", "Producto", "Cantidad", "Costo compra", "Precio venta", "Subtotal" }) header.Cell().Background(Navy).Border(0.5f).BorderColor(Colors.White).Padding(6).Text(title).Bold().FontSize(8).FontColor(Colors.White); });
+                    foreach (var item in rows) { Cell(table).Text(item.Codigo ?? item.IdProducto.ToString()); Cell(table).Text(item.ProductoNombre); Cell(table).AlignRight().Text(item.Cantidad.ToString()); Cell(table).AlignRight().Text($"Q {item.CostoUnitario:0.00}"); Cell(table).AlignRight().Text($"Q {item.PrecioVenta:0.00}"); Cell(table).AlignRight().Text($"Q {item.Subtotal:0.00}").Bold(); }
                 });
                 column.Item().BorderTop(1).BorderColor(Navy).PaddingTop(10).AlignRight().Text($"TOTAL Q {head.Total:0.00}").Bold().FontSize(16);
                 column.Item().PaddingTop(36).Row(row => { Signature(row.RelativeItem(), "Entrega proveedor"); row.ConstantItem(42); Signature(row.RelativeItem(), "Recibe"); });

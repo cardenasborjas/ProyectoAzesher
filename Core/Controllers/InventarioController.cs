@@ -11,7 +11,7 @@ namespace Core.Controllers;
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
-public class InventarioController(IInventarioProviderDTO inventarioProvider) : ControllerBase
+public class InventarioController(IInventarioProviderDTO inventarioProvider, NotificationService notifications) : ControllerBase
 {
     [HttpGet("proveedores")] public async Task<IActionResult> BuscarProveedores([FromQuery]string? query=null) => Ok(new ApiResponse<object>{Success=true,Message="Proveedores obtenidos.",Data=await inventarioProvider.BuscarProveedoresAsync(query??"")});
     [HttpPost("proveedores")] public async Task<IActionResult> CrearProveedor([FromBody]ProveedorDTO supplier) { if(string.IsNullOrWhiteSpace(supplier.Nombre))return BadRequest(new ApiResponse<object>{Success=false,Message="El nombre es obligatorio."});var id=await inventarioProvider.CrearProveedorAsync(supplier);return Ok(new ApiResponse<object>{Success=true,Message="Proveedor creado.",Data=new{IdProveedor=id}}); }
@@ -91,6 +91,33 @@ public class InventarioController(IInventarioProviderDTO inventarioProvider) : C
         Message = "Códigos de barras obtenidos.",
         Data = await inventarioProvider.ObtenerCodigosProductoAsync(idProducto)
     });
+
+    [HttpPut("productos/{idProducto:int}/precio")]
+    public async Task<IActionResult> CambiarPrecio(int idProducto, [FromBody] CambiarPrecioProductoDTO request)
+    {
+        if (request.Precio <= 0) return BadRequest(new ApiResponse<object> { Success = false, Message = "El precio de venta debe ser mayor que cero." });
+        var userId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : 0;
+        try
+        {
+            if (IsAdministrator())
+            {
+                await inventarioProvider.ActualizarPrecioProductoAsync(idProducto, request.Precio, userId);
+                return Ok(new ApiResponse<object> { Success = true, Message = "Precio de venta actualizado." });
+            }
+            var requestId = await notifications.RequestPriceChangeAsync(userId, idProducto, request.Precio);
+            return Accepted(new ApiResponse<object> { Success = true, Message = "Solicitud enviada a administración.", Data = new { IdSolicitud = requestId } });
+        }
+        catch (InvalidOperationException ex) { return BadRequest(new ApiResponse<object> { Success = false, Message = ex.Message }); }
+    }
+
+    [Authorize(Roles = "demo,Demo,superusuario,Superusuario,admin,Admin,Administrador,administrador")]
+    [HttpPost("productos/precio-solicitudes/{idSolicitud:int}/resolver")]
+    public async Task<IActionResult> ResolverPrecio(int idSolicitud, [FromBody] ResolverCambioPrecioDTO request)
+    {
+        var userId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : 0;
+        try { await notifications.ResolvePriceChangeAsync(idSolicitud, userId, request.Aprobar); return Ok(new ApiResponse<object> { Success = true, Message = request.Aprobar ? "Cambio de precio aprobado." : "Cambio de precio rechazado." }); }
+        catch (InvalidOperationException ex) { return BadRequest(new ApiResponse<object> { Success = false, Message = ex.Message }); }
+    }
 
     [HttpPost("productos/{idProducto:int}/codigos-barras")]
     public async Task<IActionResult> GuardarCodigoBarras(int idProducto, [FromBody] GuardarProductoCodigoBarraDTO request)
@@ -199,4 +226,5 @@ public class InventarioController(IInventarioProviderDTO inventarioProvider) : C
     }
 
     private BadRequestObjectResult BranchRequired() => BadRequest(new ApiResponse<object> { Success = false, Message = "Debes seleccionar una sucursal." });
+    private bool IsAdministrator() => User.IsInRole("Administrador") || User.IsInRole("administrador") || User.IsInRole("Admin") || User.IsInRole("admin") || User.IsInRole("Demo") || User.IsInRole("demo") || User.IsInRole("Superusuario") || User.IsInRole("superusuario");
 }

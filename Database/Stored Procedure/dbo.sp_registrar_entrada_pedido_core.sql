@@ -4,9 +4,10 @@ BEGIN
  IF NOT EXISTS(SELECT 1 FROM dbo.proveedor WHERE id_proveedor=@IdProveedor AND activo=1) THROW 50008,'El proveedor está desactivado y no puede recibir nuevas entradas.',1;
  IF NOT EXISTS(SELECT 1 FROM OPENJSON(@Detalles)) THROW 50002,'El pedido debe incluir al menos un producto.',1;
  BEGIN TRANSACTION;
- DECLARE @Detalle TABLE(IdProducto INT,Cantidad INT,CostoUnitario DECIMAL(12,2));
- INSERT @Detalle SELECT IdProducto,Cantidad,CostoUnitario FROM OPENJSON(@Detalles) WITH(IdProducto INT '$.IdProducto',Cantidad INT '$.Cantidad',CostoUnitario DECIMAL(12,2) '$.CostoUnitario');
- IF EXISTS(SELECT 1 FROM @Detalle WHERE IdProducto IS NULL OR Cantidad<=0 OR CostoUnitario<0) THROW 50003,'Las cantidades, productos y costos no son válidos.',1;
+ DECLARE @Detalle TABLE(IdProducto INT,Cantidad INT,CostoUnitario DECIMAL(12,2),PrecioVenta DECIMAL(12,2));
+ INSERT @Detalle SELECT IdProducto,Cantidad,CostoUnitario,PrecioVenta FROM OPENJSON(@Detalles) WITH(IdProducto INT '$.IdProducto',Cantidad INT '$.Cantidad',CostoUnitario DECIMAL(12,2) '$.CostoUnitario',PrecioVenta DECIMAL(12,2) '$.PrecioVenta');
+ IF EXISTS(SELECT 1 FROM @Detalle WHERE IdProducto IS NULL OR Cantidad<=0 OR CostoUnitario<=0) THROW 50003,'Las cantidades, productos y costos deben ser mayores que cero.',1;
+ IF EXISTS(SELECT 1 FROM @Detalle WHERE PrecioVenta<=0 OR CostoUnitario>=PrecioVenta) THROW 50009,'El costo de compra debe ser menor que el precio de venta.',1;
  IF EXISTS(SELECT 1 FROM @Detalle d WHERE NOT EXISTS(SELECT 1 FROM dbo.proveedor_producto pp WHERE pp.id_proveedor=@IdProveedor AND pp.id_producto=d.IdProducto AND pp.activo=1)) THROW 50004,'Uno de los productos no pertenece al proveedor seleccionado.',1;
  IF @MetodoPago NOT IN('efectivo','tarjeta','transferencia','credito') THROW 50005,'El método de pago no es válido.',1;
  DECLARE @IdSesion INT=NULL;
@@ -20,6 +21,7 @@ BEGIN
  DECLARE @IdCompra INT=CAST(SCOPE_IDENTITY() AS INT);
  UPDATE dbo.compra SET numero_pedido=CONCAT('PED-',RIGHT('00000000'+CAST(@IdCompra AS VARCHAR(10)),8)) WHERE id_compra=@IdCompra;
  INSERT dbo.detalle_compra(id_compra,id_producto,cantidad,costo_unitario,subtotal) SELECT @IdCompra,IdProducto,Cantidad,CostoUnitario,Cantidad*CostoUnitario FROM @Detalle;
+ UPDATE p SET precio=d.PrecioVenta FROM dbo.producto p INNER JOIN @Detalle d ON d.IdProducto=p.id_producto;
  MERGE dbo.inventario AS t USING(SELECT IdProducto,SUM(Cantidad) Cantidad FROM @Detalle GROUP BY IdProducto) s ON t.id_sucursal=@IdSucursal AND t.id_producto=s.IdProducto
  WHEN MATCHED THEN UPDATE SET stock=t.stock+s.Cantidad WHEN NOT MATCHED THEN INSERT(id_sucursal,id_producto,stock) VALUES(@IdSucursal,s.IdProducto,s.Cantidad);
  COMMIT; SELECT @IdCompra IdCompra,@Total Total;

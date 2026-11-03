@@ -8,6 +8,10 @@ public class InventarioProductoDTO
     public string Nombre { get; set; } = string.Empty;
     public string? Descripcion { get; set; }
     public decimal Precio { get; set; }
+    public decimal? CostoUltimaCompra { get; set; }
+    public int? IdSolicitudPrecio { get; set; }
+    public decimal? PrecioSolicitado { get; set; }
+    public string? SolicitantePrecio { get; set; }
     public int Stock { get; set; }
     public int IdSucursal { get; set; }
     public string SucursalNombre { get; set; } = string.Empty;

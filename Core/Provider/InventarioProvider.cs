@@ -93,4 +93,19 @@ public class InventarioProvider(IConfiguration configuration) : IInventarioProvi
     public async Task<int> RegistrarSalidaAsync(SalidaInventarioRequestDTO salida,int idUsuario){using var connection=new SqlConnection(_connectionString);return await connection.QuerySingleAsync<int>("dbo.sp_registrar_salida_inventario",new{salida.IdSucursal,IdUsuario=idUsuario,salida.Motivo,salida.Observaciones,Detalles=JsonSerializer.Serialize(salida.Detalles)},commandType:CommandType.StoredProcedure);}
     public Task<List<SalidaInventarioConsultaDTO>> BuscarSalidasAsync(int idSucursal,string query)=>QueryList<SalidaInventarioConsultaDTO>("dbo.sp_listar_salidas_inventario",new{IdSucursal=idSucursal,Query=query?.Trim()??""});
     public Task<List<MovimientoInventarioDTO>> BuscarMovimientosAsync(int? idSucursal,int? idProducto,string query,string tipo,DateTime? fechaDesde,DateTime? fechaHasta,int pagina,int tamanoPagina)=>QueryList<MovimientoInventarioDTO>("dbo.sp_movimientos_inventario",new{IdSucursal=idSucursal,IdProducto=idProducto,Query=query?.Trim()??"",Tipo=tipo?.Trim()??"",FechaDesde=fechaDesde,FechaHasta=fechaHasta,Pagina=pagina,TamanoPagina=tamanoPagina});
+    public async Task ActualizarPrecioProductoAsync(int idProducto, decimal precio, int idUsuario)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        try
+        {
+            await connection.ExecuteAsync("""
+                DECLARE @Costo DECIMAL(12,2)=(SELECT TOP(1) dc.costo_unitario FROM dbo.detalle_compra dc INNER JOIN dbo.compra c ON c.id_compra=dc.id_compra WHERE dc.id_producto=@IdProducto ORDER BY c.fecha DESC,dc.id_detalle_compra DESC);
+                IF NOT EXISTS(SELECT 1 FROM dbo.producto WHERE id_producto=@IdProducto) THROW 50510,'El producto no existe.',1;
+                IF @Precio<=0 THROW 50511,'El precio de venta debe ser mayor que cero.',1;
+                IF @Costo IS NOT NULL AND @Precio<=@Costo THROW 50512,'El precio de venta debe ser mayor que el último costo de compra.',1;
+                UPDATE dbo.producto SET precio=@Precio WHERE id_producto=@IdProducto;
+                """, new { IdProducto = idProducto, Precio = precio, IdUsuario = idUsuario });
+        }
+        catch (SqlException ex) when (ex.Number >= 50000) { throw new InvalidOperationException(ex.Message, ex); }
+    }
 }

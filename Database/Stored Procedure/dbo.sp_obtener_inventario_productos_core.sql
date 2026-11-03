@@ -14,6 +14,10 @@ BEGIN
         p.nombre AS Nombre,
         p.descripcion AS Descripcion,
         p.precio AS Precio,
+        lastCost.CostoUltimaCompra,
+        pending.id_solicitud AS IdSolicitudPrecio,
+        pending.precio_solicitado AS PrecioSolicitado,
+        pending.Solicitante AS SolicitantePrecio,
         i.stock AS Stock,
         s.id_sucursal AS IdSucursal,
         s.nombre AS SucursalNombre,
@@ -31,6 +35,16 @@ BEGIN
         WHERE id_producto = p.id_producto AND activo = 1
         ORDER BY id_codigo_barra
     ) cb
+    OUTER APPLY (
+        SELECT TOP 1 dc.costo_unitario CostoUltimaCompra
+        FROM dbo.detalle_compra dc INNER JOIN dbo.compra c ON c.id_compra=dc.id_compra
+        WHERE dc.id_producto=p.id_producto ORDER BY c.fecha DESC,dc.id_detalle_compra DESC
+    ) lastCost
+    OUTER APPLY (
+        SELECT TOP 1 scp.id_solicitud,scp.precio_solicitado,CONCAT(u.nombre,' ',ISNULL(u.apellidos,'')) Solicitante
+        FROM dbo.solicitud_cambio_precio scp INNER JOIN dbo.usuario u ON u.id_usuario=scp.id_usuario_solicita
+        WHERE scp.id_producto=p.id_producto AND scp.estado='Pendiente' ORDER BY scp.fecha_solicitud DESC
+    ) pending
     WHERE i.id_sucursal = @IdSucursal
       AND (
           @Busqueda = ''

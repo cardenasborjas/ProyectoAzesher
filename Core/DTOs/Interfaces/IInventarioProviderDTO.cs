@@ -20,4 +20,5 @@ public interface IInventarioProviderDTO
     Task<int> RegistrarSalidaAsync(SalidaInventarioRequestDTO salida,int idUsuario);
     Task<List<SalidaInventarioConsultaDTO>> BuscarSalidasAsync(int idSucursal,string query);
     Task<List<MovimientoInventarioDTO>> BuscarMovimientosAsync(int? idSucursal,int? idProducto,string query,string tipo,DateTime? fechaDesde,DateTime? fechaHasta,int pagina,int tamanoPagina);
+    Task ActualizarPrecioProductoAsync(int idProducto, decimal precio, int idUsuario);
 }
