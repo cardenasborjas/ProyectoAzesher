@@ -9,6 +9,8 @@ using Core.Configuration;
 using Core.Integrations.Digifact;
 using Core.Hubs;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 EnvFileLoader.Load(Path.Combine(builder.Environment.ContentRootPath, ".env"));
@@ -17,6 +19,16 @@ Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("auth", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 8, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions { PermitLimit = 180, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+});
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<ISaleScannerSessionService, SaleScannerSessionService>();
 builder.Services.AddScoped<IAuthProviderDTO, AuthProvider>();
@@ -93,8 +105,10 @@ app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 
 app.UseCors("AllowReactApp");
+app.UseRateLimiter();
 
 app.UseAuthentication();
+app.UseMiddleware<ModuleAccessMiddleware>();
 app.UseMiddleware<BitacoraMiddleware>();
 app.UseAuthorization();
 

@@ -123,8 +123,10 @@ BEGIN
             @ComprobanteTransferencia, @ComprobanteMime
         );
 
-        INSERT INTO dbo.detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal)
-        SELECT @IdVenta, IdProducto, Cantidad, PrecioUnitario, Subtotal FROM @Detalles;
+        INSERT INTO dbo.detalle_venta (id_venta, id_producto, cantidad, precio_unitario, subtotal, costo_unitario)
+        SELECT @IdVenta, d.IdProducto, d.Cantidad, d.PrecioUnitario, d.Subtotal, ISNULL(cost.costo_unitario,0)
+        FROM @Detalles d
+        OUTER APPLY(SELECT TOP(1) dc.costo_unitario FROM dbo.detalle_compra dc INNER JOIN dbo.compra c ON c.id_compra=dc.id_compra WHERE dc.id_producto=d.IdProducto ORDER BY c.fecha DESC,dc.id_detalle_compra DESC) cost;
 
         UPDATE i
         SET i.stock = i.stock - d.Cantidad

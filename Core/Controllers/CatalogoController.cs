@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Core.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CatalogoController(ICatalogoProviderDTO catalogoProvider) : ControllerBase

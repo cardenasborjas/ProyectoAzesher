@@ -15,4 +15,12 @@ public class OperacionProvider(IConfiguration cfg):IOperacionProviderDTO {
  public Task ActualizarCliente(ClienteGestionDTO client)=>Exec("dbo.sp_actualizar_cliente",new{client.IdCliente,client.Nombre,client.Nit,client.Telefono,client.Correo,client.Direccion,client.FechaNacimiento});
  public Task<List<HistorialClienteDTO>> Historial(int client,int branch,DateTime? from,DateTime? to)=>List<HistorialClienteDTO>("dbo.sp_historial_cliente",new{IdCliente=client,IdSucursal=branch,FechaDesde=from,FechaHasta=to});
  public Task<List<ReporteFilaDTO>> Reporte(string type,int branch,DateTime from,DateTime to)=>List<ReporteFilaDTO>($"dbo.sp_reporte_{type}",type=="inventario"?new{IdSucursal=branch}:(object)new{IdSucursal=branch,FechaDesde=from,FechaHasta=to});
+ public async Task<ReporteUtilidadDTO> ReporteUtilidad(int branch,DateTime from,DateTime to){await using var connection=new SqlConnection(cs);return await connection.QuerySingleAsync<ReporteUtilidadDTO>("""
+ DECLARE @Ventas DECIMAL(18,2)=(SELECT ISNULL(SUM(v.total),0) FROM dbo.venta v JOIN dbo.sesion_caja s ON s.id_sesion=v.id_sesion WHERE s.id_sucursal=@Branch AND CAST(v.fecha AS DATE) BETWEEN @From AND @To);
+ DECLARE @Costo DECIMAL(18,2)=(SELECT ISNULL(SUM(dv.cantidad*dv.costo_unitario),0) FROM dbo.detalle_venta dv JOIN dbo.venta v ON v.id_venta=dv.id_venta JOIN dbo.sesion_caja s ON s.id_sesion=v.id_sesion WHERE s.id_sucursal=@Branch AND CAST(v.fecha AS DATE) BETWEEN @From AND @To);
+ DECLARE @Gastos DECIMAL(18,2)=(SELECT ISNULL(SUM(m.monto),0) FROM dbo.movimiento_caja_manual m JOIN dbo.sesion_caja s ON s.id_sesion=m.id_sesion WHERE s.id_sucursal=@Branch AND CAST(m.fecha AS DATE) BETWEEN @From AND @To);
+ SELECT @Ventas Ventas,@Costo CostoVentas,@Ventas-@Costo UtilidadBruta,@Gastos GastosOperativos,@Ventas-@Costo-@Gastos UtilidadNeta,CASE WHEN @Ventas=0 THEN 0 ELSE ((@Ventas-@Costo)/@Ventas)*100 END MargenBrutoPorcentaje,
+ (SELECT ISNULL(SUM(cx.saldo_pendiente),0) FROM dbo.cuenta_cobrar cx JOIN dbo.venta v ON v.id_venta=cx.id_venta JOIN dbo.sesion_caja s ON s.id_sesion=v.id_sesion WHERE s.id_sucursal=@Branch AND cx.estado='Pendiente') CuentasPorCobrar,
+ (SELECT ISNULL(SUM(c.total),0) FROM dbo.compra c WHERE c.id_sucursal=@Branch AND CAST(c.fecha AS DATE) BETWEEN @From AND @To) Compras;
+ """,new{Branch=branch,From=from.Date,To=to.Date});}
 }

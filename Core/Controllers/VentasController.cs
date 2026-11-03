@@ -12,6 +12,7 @@ using Core.Integrations.Digifact;
 
 namespace Core.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class VentasController(IVentaProviderDTO ventaProvider, IDigifactClient digifact) : ControllerBase

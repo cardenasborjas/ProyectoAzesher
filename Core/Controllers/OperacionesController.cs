@@ -59,6 +59,7 @@ public class OperacionesController(IOperacionProviderDTO provider, IDigifactClie
 
     [HttpGet("clientes/{id:int}/historial")] public async Task<IActionResult> Historial(int id, int idSucursal, DateTime? fechaDesde = null, DateTime? fechaHasta = null) => Ok(Success("Historial.", await provider.Historial(id, Branch(idSucursal), fechaDesde, fechaHasta)));
     [HttpGet("reportes/{tipo}")] public async Task<IActionResult> Reporte(string tipo, int idSucursal, DateTime fechaDesde, DateTime fechaHasta) { if (tipo is not ("ventas" or "inventario" or "cobros" or "caja")) return BadRequest(); return Ok(Success("Reporte generado.", await provider.Reporte(tipo, Branch(idSucursal), fechaDesde, fechaHasta))); }
+    [HttpGet("reportes/utilidad/resumen")] public async Task<IActionResult> Utilidad(int idSucursal,DateTime fechaDesde,DateTime fechaHasta){if(fechaHasta.Date<fechaDesde.Date)return BadRequest(Failure("La fecha final no puede ser anterior a la inicial."));return Ok(Success("Rentabilidad calculada.",await provider.ReporteUtilidad(Branch(idSucursal),fechaDesde,fechaHasta)));}
 
     private ObjectResult ProviderError(DigifactException exception) => StatusCode(exception.StatusCode is >= 400 and < 600 ? exception.StatusCode.Value : 502, Failure(exception.Message));
     private static ApiResponse<object> Success(string message, object? data = null) => new() { Success = true, Message = message, Data = data };

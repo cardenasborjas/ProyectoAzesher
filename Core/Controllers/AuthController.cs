@@ -9,6 +9,7 @@ using System.Text;
 using Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Core.Controllers
 {
@@ -19,6 +20,7 @@ namespace Core.Controllers
         private readonly IAuthProviderDTO _authProvider = authProvider;
 
         [HttpPost("login")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO request)
         {
             if (string.IsNullOrWhiteSpace(request.username) || string.IsNullOrWhiteSpace(request.password))
@@ -128,6 +130,7 @@ namespace Core.Controllers
             =>bitacora.RegistrarAsync(new RegistrarBitacoraDTO(idUsuario,username,idSucursal,"auth","Iniciar sesión","POST","/api/auth/login",resultado,codigo,HttpContext.Connection.RemoteIpAddress?.ToString(),detalle));
 
         [HttpPost("forgot-password")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> ForgotPassword([FromBody]ForgotPasswordRequestDTO request)
         {
             const string generic="Si el usuario o correo está registrado, recibirás un enlace para restablecer la contraseña.";
@@ -145,6 +148,7 @@ namespace Core.Controllers
         }
 
         [HttpPost("reset-password")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> ResetPassword([FromBody]ResetPasswordRequestDTO request)
         {
             if(string.IsNullOrWhiteSpace(request.Token))

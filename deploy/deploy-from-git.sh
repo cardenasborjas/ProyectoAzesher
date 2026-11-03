@@ -82,6 +82,9 @@ docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
 docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
   /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -I -d AZESHERBD \
   < Database/Migrations/20261102_costos_precios.sql
+docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
+  /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -I -d AZESHERBD \
+  < Database/Migrations/20261102_seguridad_finanzas.sql
 
 # Los procedimientos viven en el host del despliegue, no dentro del contenedor
 # de SQL Server. Se envían individualmente por stdin para evitar rutas :r.
