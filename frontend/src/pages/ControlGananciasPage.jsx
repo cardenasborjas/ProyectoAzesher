@@ -4,14 +4,14 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import axiosClient from '../api/axiosClient';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { useAuth } from '../context/AuthContext';
-import { guatemalaInputDate, guatemalaMonthStart } from '../utils/guatemalaDate';
+import { guatemalaDaysAgo, guatemalaInputDate } from '../utils/guatemalaDate';
 
 const money = new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' });
 const empty = { ventas: 0, costoVentas: 0, utilidadBruta: 0, gastosOperativos: 0, utilidadNeta: 0, margenBrutoPorcentaje: 0, cuentasPorCobrar: 0, compras: 0 };
 
 export default function ControlGananciasPage() {
   const { selectedSucursalId } = useAuth();
-  const [range, setRange] = useState(() => ({ fechaDesde: guatemalaMonthStart(), fechaHasta: guatemalaInputDate() }));
+  const [range, setRange] = useState(() => ({ fechaDesde: guatemalaDaysAgo(30), fechaHasta: guatemalaInputDate() }));
   const [summary, setSummary] = useState(empty);
   const [sales, setSales] = useState([]);
   const [cash, setCash] = useState([]);

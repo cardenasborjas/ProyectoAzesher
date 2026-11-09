@@ -16,8 +16,8 @@ public sealed class NotificationsController(NotificationService notifications) :
         Ok(new ApiResponse<object> { Success = true, Data = await notifications.ListAsync(UserId, incluirLeidas, limite) });
 
     [HttpGet("historial")]
-    public async Task<IActionResult> History(int limite = 100, DateTime? fecha = null) =>
-        Ok(new ApiResponse<object> { Success = true, Data = await notifications.HistoryAsync(UserId, limite, fecha) });
+    public async Task<IActionResult> History(int limite = 100, DateTime? fechaDesde = null, DateTime? fechaHasta = null) =>
+        Ok(new ApiResponse<object> { Success = true, Data = await notifications.HistoryAsync(UserId, limite, fechaDesde, fechaHasta) });
 
     [HttpPost("{id:long}/leer")]
     public async Task<IActionResult> Read(long id)

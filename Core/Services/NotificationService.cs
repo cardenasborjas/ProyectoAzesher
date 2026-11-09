@@ -36,7 +36,7 @@ public sealed class NotificationService(IConfiguration configuration)
         return new NotificationListDTO { NoLeidas = unread, Registros = rows };
     }
 
-    public async Task<List<NotificationDTO>> HistoryAsync(int userId, int limit, DateTime? date = null)
+    public async Task<List<NotificationDTO>> HistoryAsync(int userId, int limit, DateTime? from = null, DateTime? to = null)
     {
         await using var db = new SqlConnection(connectionString);
         return (await db.QueryAsync<NotificationDTO>("""
@@ -44,9 +44,10 @@ public sealed class NotificationService(IConfiguration configuration)
                    url Url,entidad Entidad,id_entidad IdEntidad,fecha_creacion FechaCreacion,
                    fecha_lectura FechaLectura,fecha_resolucion FechaResolucion
             FROM dbo.notificacion WHERE id_usuario_destino=@UserId
-              AND (@Date IS NULL OR CAST((fecha_creacion AT TIME ZONE 'UTC' AT TIME ZONE 'Central America Standard Time') AS DATE)=CAST(@Date AS DATE))
+              AND (@From IS NULL OR CAST((fecha_creacion AT TIME ZONE 'UTC' AT TIME ZONE 'Central America Standard Time') AS DATE)>=CAST(@From AS DATE))
+              AND (@To IS NULL OR CAST((fecha_creacion AT TIME ZONE 'UTC' AT TIME ZONE 'Central America Standard Time') AS DATE)<=CAST(@To AS DATE))
             ORDER BY fecha_creacion DESC,id_notificacion DESC
-            """, new { UserId = userId, Limit = Math.Clamp(limit, 1, 500), Date = date?.Date })).ToList();
+            """, new { UserId = userId, Limit = Math.Clamp(limit, 1, 500), From = from?.Date, To = to?.Date })).ToList();
     }
 
     public async Task MarkReadAsync(int userId, long notificationId)

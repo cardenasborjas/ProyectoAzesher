@@ -20,6 +20,8 @@ export const guatemalaMonthStart = (value = new Date()) => {
   return `${year}-${month}-01`;
 };
 
+export const guatemalaDaysAgo = (days) => guatemalaInputDate(new Date(Date.now() - days * 86400000));
+
 export const formatGuatemalaDate = (value, options = {}) => {
   if (!value) return '—';
   return new Intl.DateTimeFormat('es-GT', {
