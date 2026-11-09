@@ -113,7 +113,10 @@ done
 
 # Las migraciones ya se ejecutaron explícitamente arriba. Evitamos volver a
 # ejecutar el servicio one-shot y arrancamos los servicios de aplicación.
-docker compose up -d --no-deps api frontend caddy
+docker compose up -d --no-deps api frontend
+# Git reemplaza el Caddyfile por un inode nuevo; recrear Caddy garantiza que el
+# bind mount y las cabeceras de seguridad siempre correspondan al commit actual.
+docker compose up -d --no-deps --force-recreate caddy
 docker compose ps
 
 for _ in {1..30}; do
