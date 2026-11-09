@@ -19,7 +19,7 @@ const bonusTypes = [
 const catalogs = {
   sucursales: { label: "Sucursales", fields: [["nombre", "Nombre", "text", true], ["direccion", "Dirección"], ["telefono", "Teléfono"], ["colorIdentificacion", "Color", "color", true], ["activo", "Activo", "checkbox"]], canDisable: true },
   proveedores: { label: "Proveedores", fields: [["nombre", "Nombre", "text", true], ["telefono", "Teléfono"], ["direccion", "Dirección"], ["activo", "Activo", "checkbox"]], columns: [["nombre", "Nombre"], ["telefono", "Teléfono"], ["direccion", "Dirección"], ["activo", "Estado"]], canDisable: true },
-  productos: { label: "Productos", fields: [["codigo", "Código", "text", true], ["nombre", "Nombre", "text", true], ["descripcion", "Descripción"], ["precio", "Precio", "number", true], ["idCategoria", "Categoría", "select:categorias-producto", true]], columns: [["codigo", "Código"], ["nombre", "Nombre"], ["categoria", "Categoría"], ["precio", "Precio"]] },
+  productos: { label: "Productos", fields: [["codigo", "Código", "text", true], ["nombre", "Nombre", "text", true], ["descripcion", "Descripción"], ["costo", "Precio costo", "number", true], ["precio", "Precio venta", "number", true], ["idCategoria", "Categoría", "select:categorias-producto", true]], columns: [["codigo", "Código"], ["nombre", "Nombre"], ["categoria", "Categoría"], ["costo", "Costo"], ["precio", "Precio venta"]] },
   "categorias-producto": { label: "Categorías de producto", fields: [["nombre", "Nombre", "text", true], ["descripcion", "Descripción"], ["activo", "Activo", "checkbox"]], canDisable: true },
   "proveedor-producto": { label: "Productos por proveedor", fields: [["idProveedor", "Proveedor", "select:proveedores", true], ["idProducto", "Producto", "select:productos", true]], columns: [["proveedor", "Proveedor"], ["producto", "Producto"], ["activo", "Estado"]], canDisable: true },
   vendedores: { label: "Vendedores", fields: [["nombre", "Nombre", "text", true], ["telefono", "Teléfono"], ["idSucursal", "Sucursal", "select:sucursales", true], ["activo", "Activo", "checkbox"]], columns: [["nombre", "Nombre"], ["telefono", "Teléfono"], ["sucursal", "Sucursal"], ["activo", "Estado"]], canDisable: true },
@@ -145,7 +145,7 @@ function formatCell(key, value) {
   if (key === "colorIdentificacion") return <span className="flex items-center gap-2"><i className="h-5 w-5 rounded-sm border" style={{ backgroundColor: value }} />{value}</span>;
   if (key === "tipoCalculo") return bonusTypes.find(([code]) => code === value)?.[1] || value;
   if (key === "porcentaje") return value == null ? "—" : `${Number(value)}%`;
-  if (["metaMinima", "montoBono", "precio"].includes(key)) return value == null ? "—" : money.format(Number(value));
+  if (["metaMinima", "montoBono", "costo", "precio"].includes(key)) return value == null ? "—" : money.format(Number(value));
   if (typeof value === "boolean") return value ? "Activo" : "Inactivo";
   return String(value ?? "—");
 }

@@ -17,10 +17,15 @@ BEGIN
         id_producto INT IDENTITY(1,1) PRIMARY KEY,
         nombre VARCHAR(150) NOT NULL,
         descripcion VARCHAR(MAX),
+        costo DECIMAL(12,2) NULL,
         precio DECIMAL(12,2) NOT NULL
     );
     CREATE INDEX idx_producto_nombre ON dbo.producto(nombre);
 END
+GO
+
+IF COL_LENGTH('dbo.producto', 'costo') IS NULL
+    ALTER TABLE dbo.producto ADD costo DECIMAL(12,2) NULL;
 GO
 
 

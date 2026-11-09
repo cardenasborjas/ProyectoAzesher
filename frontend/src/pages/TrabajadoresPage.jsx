@@ -58,6 +58,18 @@ const emptyUser = {
   permisos: [],
 };
 const emptyPasswordChange = { passwordActual: "", passwordNueva: "", confirmacion: "" };
+const submodules = {
+  dashboard: [],
+  ventas: [["ventas.venta", "Venta de productos"], ["ventas.recibos", "Recibos"], ["ventas.facturas", "Facturas"]],
+  inventarios: [["inventarios.productos", "Listado de productos"], ["inventarios.entradas", "Entrada de pedidos"], ["inventarios.salidas", "Salida de productos"], ["inventarios.proveedores", "Proveedores"], ["inventarios.traslados", "Traslados"]],
+  caja: [["caja.apertura", "Apertura y cierre"], ["caja.cierres", "Listado de cierres"]],
+  clientes: [["clientes.listado", "Clientes y solicitudes de crédito"]],
+  cobros: [["cobros.estado", "Estado de cuenta"], ["cobros.abonos", "Registrar abonos"], ["cobros.listado", "Listado de cobros"], ["cobros.autorizar", "Autorizar crédito"]],
+  reportes: [["reportes.consolidado", "Reportes consolidados"], ["reportes.ganancias", "Control de ganancias"]],
+  trabajadores: [["trabajadores.registro", "Registro"], ["trabajadores.kpis", "KPIs"], ["trabajadores.evaluacion", "Evaluaciones"], ["trabajadores.ventas", "Ventas por trabajador"], ["trabajadores.planilla", "Planilla"]],
+  configuracion: [["configuracion.datos", "Datos maestros"], ["configuracion.usuarios", "Usuarios"]],
+  alertas: [], bitacora: [],
+};
 
 export default function TrabajadoresPage({ mode = "register" }) {
   if (mode === "kpis") return <Kpis />;
@@ -243,13 +255,6 @@ function Register({ initialTab = "workers", singleTab = false }) {
       });
     }
   };
-  const togglePermission = (code) =>
-    setSystemUser((current) => ({
-      ...current,
-      permisos: current.permisos.includes(code)
-        ? current.permisos.filter((item) => item !== code)
-        : [...current.permisos, code],
-    }));
   return (
     <Page title="Personal">
       <NotificationToast
@@ -411,28 +416,7 @@ function Register({ initialTab = "workers", singleTab = false }) {
                 }
               />
             )}
-            {systemUser.rol === "Encargado" && (
-              <fieldset className="border p-3">
-                <legend className="px-1 text-sm font-bold">
-                  Módulos permitidos
-                </legend>
-                <div className="grid grid-cols-2 gap-2">
-                  {modules.map((item) => (
-                    <label
-                      key={item.codigo}
-                      className="flex items-center gap-2 text-sm"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={systemUser.permisos.includes(item.codigo)}
-                        onChange={() => togglePermission(item.codigo)}
-                      />
-                      {item.nombre}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-            )}
+            {systemUser.rol === "Encargado" && <PermissionSelector modules={modules} value={systemUser.permisos} setValue={permisos => setSystemUser({ ...systemUser, permisos })} />}
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -517,7 +501,7 @@ function Register({ initialTab = "workers", singleTab = false }) {
           <Select label="Rol *" value={systemUser.rol} set={(v) => setSystemUser({ ...systemUser, rol: v })} options={[["Administrador", "Administrador"], ["Encargado", "Encargado"]]} />
           <Select label="Sucursal" value={systemUser.idSucursal || ""} set={(v) => setSystemUser({ ...systemUser, idSucursal: v })} options={[["", "Todas las sucursales"], ...sucursales.map((s) => [s.idSucursal, s.nombreSuc])]} />
           {systemUser.rol === "Encargado" && <DateField label="Vigencia de contraseña *" value={systemUser.fechaExpiracionPassword?.slice?.(0, 10) || ""} set={(v) => setSystemUser({ ...systemUser, fechaExpiracionPassword: v })} />}
-          {systemUser.rol === "Encargado" && <fieldset className="border p-3"><legend className="px-1 text-sm font-bold">Módulos permitidos</legend><div className="grid grid-cols-2 gap-2">{modules.map((item) => <label key={item.codigo} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={systemUser.permisos.includes(item.codigo)} onChange={() => togglePermission(item.codigo)} />{item.nombre}</label>)}</div></fieldset>}
+          {systemUser.rol === "Encargado" && <PermissionSelector modules={modules} value={systemUser.permisos} setValue={permisos => setSystemUser({ ...systemUser, permisos })} />}
           <Toggle checked={systemUser.activo} label={systemUser.activo ? "Activo" : "Desactivado"} set={(activo) => setSystemUser({ ...systemUser, activo })} />
           <div className="flex justify-end gap-2"><button className="button-secondary" onClick={() => { setUserModal(false); setSystemUser(emptyUser); }}>Cancelar</button><button className="button-primary" onClick={saveUser}>Guardar cambios</button></div>
         </EditModal>
@@ -532,6 +516,20 @@ function Register({ initialTab = "workers", singleTab = false }) {
       </EditModal>}
     </Page>
   );
+}
+
+function PermissionSelector({ modules, value, setValue }) {
+  const [expanded, setExpanded] = useState({});
+  const toggleModule = code => {
+    const children = (submodules[code] || []).map(([child]) => child);
+    if (value.includes(code)) setValue(value.filter(permission => permission !== code));
+    else setValue([...value.filter(permission => permission !== code && !children.includes(permission)), code]);
+  };
+  const toggleChild = (parent, code) => {
+    const withoutParent = value.filter(permission => permission !== parent);
+    setValue(withoutParent.includes(code) ? withoutParent.filter(permission => permission !== code) : [...withoutParent, code]);
+  };
+  return <fieldset className="rounded-lg border p-3"><legend className="px-1 text-sm font-bold">Módulos y submódulos permitidos</legend><div className="space-y-2">{modules.map(item => { const children = submodules[item.codigo] || []; const wholeModule = value.includes(item.codigo); const someChild = children.some(([code]) => value.includes(code)); const isOpen = expanded[item.codigo]; return <div key={item.codigo} className="rounded-md border bg-white"><div className="flex items-center gap-2 p-2"><button type="button" className="rounded p-1 hover:bg-slate-100 disabled:opacity-30" disabled={!children.length} onClick={() => setExpanded(current => ({ ...current, [item.codigo]: !current[item.codigo] }))} aria-label={`${isOpen ? "Cerrar" : "Abrir"} ${item.nombre}`}>{isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}</button><label className="flex flex-1 items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={wholeModule} ref={input => { if (input) input.indeterminate = !wholeModule && someChild; }} onChange={() => toggleModule(item.codigo)} />{item.nombre}</label><small className="text-slate-500">{wholeModule ? "Todo" : someChild ? "Parcial" : "Sin acceso"}</small></div>{isOpen && children.length > 0 && <div className="grid gap-2 border-t bg-slate-50 p-3 sm:grid-cols-2">{children.map(([code, label]) => <label key={code} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={wholeModule || value.includes(code)} onChange={() => toggleChild(item.codigo, code)} />{label}</label>)}</div>}</div>; })}</div><p className="mt-3 text-xs text-slate-500">Marca el módulo para permitir todo, o despliega la flecha y selecciona únicamente los submódulos necesarios.</p></fieldset>;
 }
 
 function Kpis() {

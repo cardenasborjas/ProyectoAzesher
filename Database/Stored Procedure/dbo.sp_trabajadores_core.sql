@@ -1,5 +1,5 @@
 CREATE OR ALTER PROCEDURE dbo.sp_listar_modulos_sistema_core AS
-BEGIN SET NOCOUNT ON; SELECT id_modulo IdModulo,codigo Codigo,nombre Nombre,orden Orden FROM dbo.modulo_sistema WHERE activo=1 ORDER BY orden; END
+BEGIN SET NOCOUNT ON; SELECT id_modulo IdModulo,codigo Codigo,nombre Nombre,orden Orden FROM dbo.modulo_sistema WHERE activo=1 AND codigo NOT LIKE '%.%' ORDER BY orden; END
 GO
 
 CREATE OR ALTER PROCEDURE dbo.sp_listar_usuarios_core @Query VARCHAR(100)=''

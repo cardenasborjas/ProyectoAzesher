@@ -164,11 +164,15 @@ export const AuthProvider = ({ children }) => {
 
   const hasModuleAccess = (moduleCode) => {
     if (isAdministratorRole(user)) return true;
-    const raw = user?.permisos || "";
-    return String(raw)
+    const requested = String(moduleCode).toLowerCase();
+    const permissions = String(user?.permisos || "")
       .split(",")
       .map((value) => value.trim().toLowerCase())
-      .includes(String(moduleCode).toLowerCase());
+      .filter(Boolean);
+    if (permissions.includes(requested)) return true;
+    const parent = requested.split(".")[0];
+    if (requested.includes(".") && permissions.includes(parent)) return true;
+    return !requested.includes(".") && permissions.some((permission) => permission.startsWith(`${requested}.`));
   };
 
   return (

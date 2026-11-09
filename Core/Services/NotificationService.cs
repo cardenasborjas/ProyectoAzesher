@@ -36,7 +36,7 @@ public sealed class NotificationService(IConfiguration configuration)
         return new NotificationListDTO { NoLeidas = unread, Registros = rows };
     }
 
-    public async Task<List<NotificationDTO>> HistoryAsync(int userId, int limit)
+    public async Task<List<NotificationDTO>> HistoryAsync(int userId, int limit, DateTime? date = null)
     {
         await using var db = new SqlConnection(connectionString);
         return (await db.QueryAsync<NotificationDTO>("""
@@ -44,8 +44,9 @@ public sealed class NotificationService(IConfiguration configuration)
                    url Url,entidad Entidad,id_entidad IdEntidad,fecha_creacion FechaCreacion,
                    fecha_lectura FechaLectura,fecha_resolucion FechaResolucion
             FROM dbo.notificacion WHERE id_usuario_destino=@UserId
+              AND (@Date IS NULL OR CAST((fecha_creacion AT TIME ZONE 'UTC' AT TIME ZONE 'Central America Standard Time') AS DATE)=CAST(@Date AS DATE))
             ORDER BY fecha_creacion DESC,id_notificacion DESC
-            """, new { UserId = userId, Limit = Math.Clamp(limit, 1, 200) })).ToList();
+            """, new { UserId = userId, Limit = Math.Clamp(limit, 1, 500), Date = date?.Date })).ToList();
     }
 
     public async Task MarkReadAsync(int userId, long notificationId)
@@ -141,7 +142,7 @@ public sealed class NotificationService(IConfiguration configuration)
         await using var tx = (SqlTransaction)await db.BeginTransactionAsync();
         var product = await db.QueryFirstOrDefaultAsync<PriceProductRow>("""
             SELECT p.nombre Nombre,p.precio Precio,
-              (SELECT TOP(1) dc.costo_unitario FROM dbo.detalle_compra dc INNER JOIN dbo.compra c ON c.id_compra=dc.id_compra WHERE dc.id_producto=p.id_producto ORDER BY c.fecha DESC,dc.id_detalle_compra DESC) Costo
+              COALESCE((SELECT TOP(1) dc.costo_unitario FROM dbo.detalle_compra dc INNER JOIN dbo.compra c ON c.id_compra=dc.id_compra WHERE dc.id_producto=p.id_producto ORDER BY c.fecha DESC,dc.id_detalle_compra DESC),p.costo) Costo
             FROM dbo.producto p WHERE p.id_producto=@ProductId
             """, new { ProductId = productId }, tx);
         if (product is null || string.IsNullOrWhiteSpace(product.Nombre)) throw new InvalidOperationException("El producto no existe.");
@@ -172,7 +173,7 @@ public sealed class NotificationService(IConfiguration configuration)
         await using var tx = (SqlTransaction)await db.BeginTransactionAsync();
         var request = await db.QueryFirstOrDefaultAsync<PriceRequestRow>("""
             SELECT s.id_producto IdProducto,s.precio_solicitado PrecioSolicitado,s.id_usuario_solicita IdUsuarioSolicita,p.nombre Producto,
-              (SELECT TOP(1) dc.costo_unitario FROM dbo.detalle_compra dc INNER JOIN dbo.compra c ON c.id_compra=dc.id_compra WHERE dc.id_producto=s.id_producto ORDER BY c.fecha DESC,dc.id_detalle_compra DESC) Costo
+              COALESCE((SELECT TOP(1) dc.costo_unitario FROM dbo.detalle_compra dc INNER JOIN dbo.compra c ON c.id_compra=dc.id_compra WHERE dc.id_producto=s.id_producto ORDER BY c.fecha DESC,dc.id_detalle_compra DESC),p.costo) Costo
             FROM dbo.solicitud_cambio_precio s INNER JOIN dbo.producto p ON p.id_producto=s.id_producto
             WHERE s.id_solicitud=@RequestId AND s.estado='Pendiente'
             """, new { RequestId = requestId }, tx);

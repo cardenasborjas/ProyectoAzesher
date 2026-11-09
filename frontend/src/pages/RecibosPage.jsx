@@ -7,6 +7,7 @@ import NotificationToast from '../components/NotificationToast';
 import ConfirmCancelModal from '../components/ConfirmCancelModal';
 import NitValidationField from '../components/NitValidationField';
 import { downloadBlob, openBlobInNewTab } from '../utils/blobFiles';
+import LoadingIndicator from '../components/LoadingIndicator';
 
 const money = new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' });
 
@@ -90,8 +91,10 @@ export default function RecibosPage() {
         } finally { setExporting(false); }
     };
     const viewInvoice = async receipt => {
+        setExporting(true);
         try { const response = await axiosClient.get(`/facturacion/${receipt.idFactura}/pdf`, { responseType: 'blob' }); openBlobInNewTab(response.data, `${receipt.numeroFactura || receipt.numeroRecibo || 'factura'}.pdf`); }
         catch { setNotification({ message: 'No fue posible abrir la factura.', type: 'error' }); }
+        finally { setExporting(false); }
     };
     const cancelReceipt = async () => {
         setCancelling(true);
@@ -113,6 +116,7 @@ export default function RecibosPage() {
     const isNote = filters.tipoDocumento === 'nota';
     const isPayment = filters.tipoDocumento === 'abono';
     return <div className="space-y-5">
+        {exporting && <div className="fixed inset-0 z-[70] grid place-items-center bg-slate-950/35" role="status" aria-live="polite"><div className="relative min-h-32 w-full max-w-sm rounded-xl bg-white shadow-2xl"><LoadingIndicator label="Generando documento…" /></div></div>}
         <header className="page-title p-5"><div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><h1 className="text-xl font-semibold text-slate-900">{isNote ? 'Cuentas por cobrar' : isPayment ? 'Recibos de abono' : 'Recibos'}</h1><span className="text-sm text-slate-500">{receipts.length} resultados</span></div></header>
         <section className="border bg-white">
             <div className="flex border-b"><button onClick={() => selectDocumentType('recibo')} className={`px-5 py-3 text-sm font-semibold ${!isNote && !isPayment ? 'border-b-2 border-brand-teal text-brand-teal' : 'text-slate-500'}`}>Recibos</button><button onClick={() => selectDocumentType('abono')} className={`px-5 py-3 text-sm font-semibold ${isPayment ? 'border-b-2 border-brand-teal text-brand-teal' : 'text-slate-500'}`}>Recibos de abono</button><button onClick={() => selectDocumentType('nota')} className={`px-5 py-3 text-sm font-semibold ${isNote ? 'border-b-2 border-brand-teal text-brand-teal' : 'text-slate-500'}`}>Cuentas por cobrar</button></div>

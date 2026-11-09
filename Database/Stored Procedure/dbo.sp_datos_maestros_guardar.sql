@@ -19,9 +19,10 @@ BEGIN
     END
     ELSE IF @Entidad='productos'
     BEGIN
-        DECLARE @idCategoria INT=TRY_CONVERT(INT,JSON_VALUE(@Datos,'$.idCategoria'));
-        IF @Id IS NULL BEGIN INSERT dbo.producto(cod_producto,nombre,descripcion,precio,id_categoria) VALUES(JSON_VALUE(@Datos,'$.codigo'),JSON_VALUE(@Datos,'$.nombre'),JSON_VALUE(@Datos,'$.descripcion'),TRY_CONVERT(DECIMAL(12,2),JSON_VALUE(@Datos,'$.precio')),@idCategoria); SELECT CONVERT(INT,SCOPE_IDENTITY()); END
-        ELSE BEGIN UPDATE dbo.producto SET cod_producto=JSON_VALUE(@Datos,'$.codigo'),nombre=JSON_VALUE(@Datos,'$.nombre'),descripcion=JSON_VALUE(@Datos,'$.descripcion'),precio=TRY_CONVERT(DECIMAL(12,2),JSON_VALUE(@Datos,'$.precio')),id_categoria=@idCategoria WHERE id_producto=@Id; SELECT @Id; END
+        DECLARE @idCategoria INT=TRY_CONVERT(INT,JSON_VALUE(@Datos,'$.idCategoria')),@costoP DECIMAL(12,2)=TRY_CONVERT(DECIMAL(12,2),JSON_VALUE(@Datos,'$.costo')),@precioP DECIMAL(12,2)=TRY_CONVERT(DECIMAL(12,2),JSON_VALUE(@Datos,'$.precio'));
+        IF ISNULL(@costoP,0)<0 OR ISNULL(@precioP,0)<=0 OR @precioP<=ISNULL(@costoP,0) THROW 50018,'El precio de venta debe ser mayor que el costo del producto.',1;
+        IF @Id IS NULL BEGIN INSERT dbo.producto(cod_producto,nombre,descripcion,costo,precio,id_categoria) VALUES(JSON_VALUE(@Datos,'$.codigo'),JSON_VALUE(@Datos,'$.nombre'),JSON_VALUE(@Datos,'$.descripcion'),@costoP,@precioP,@idCategoria); SELECT CONVERT(INT,SCOPE_IDENTITY()); END
+        ELSE BEGIN UPDATE dbo.producto SET cod_producto=JSON_VALUE(@Datos,'$.codigo'),nombre=JSON_VALUE(@Datos,'$.nombre'),descripcion=JSON_VALUE(@Datos,'$.descripcion'),costo=@costoP,precio=@precioP,id_categoria=@idCategoria WHERE id_producto=@Id; SELECT @Id; END
     END
     ELSE IF @Entidad='proveedor-producto'
     BEGIN

@@ -87,7 +87,7 @@ export default function AppRouter() {
           <Route
             path="/ventas"
             element={
-              <ProtectedRoute module="ventas">
+              <ProtectedRoute module="ventas.venta">
                 <MainLayout>
                   <VentasPage />
                 </MainLayout>
@@ -98,7 +98,7 @@ export default function AppRouter() {
           <Route
             path="/ventas/recibos"
             element={
-              <ProtectedRoute module="ventas">
+              <ProtectedRoute module="ventas.recibos">
                 <MainLayout>
                   <RecibosPage />
                 </MainLayout>
@@ -109,7 +109,7 @@ export default function AppRouter() {
           <Route
             path="/ventas/recibo-preview"
             element={
-              <ProtectedRoute module="ventas">
+              <ProtectedRoute module="ventas.recibos">
                 <MainLayout>
                   <ReciboPreviewPage />
                 </MainLayout>
@@ -124,7 +124,7 @@ export default function AppRouter() {
           <Route
             path="/inventarios/productos"
             element={
-              <ProtectedRoute module="inventarios">
+              <ProtectedRoute module="inventarios.productos">
                 <MainLayout>
                   <InventarioProductosPage />
                 </MainLayout>
@@ -134,18 +134,18 @@ export default function AppRouter() {
           <Route
             path="/inventarios/entrada-pedido"
             element={
-              <ProtectedRoute module="inventarios">
+              <ProtectedRoute module="inventarios.entradas">
                 <MainLayout>
                   <EntradaPedidoPage />
                 </MainLayout>
               </ProtectedRoute>
             }
           />
-          <Route path="/inventarios/salidas" element={<ProtectedRoute module="inventarios"><MainLayout><SalidaInventarioPage /></MainLayout></ProtectedRoute>} />
+          <Route path="/inventarios/salidas" element={<ProtectedRoute module="inventarios.salidas"><MainLayout><SalidaInventarioPage /></MainLayout></ProtectedRoute>} />
           <Route
             path="/inventarios/proveedores"
             element={
-              <ProtectedRoute module="inventarios">
+              <ProtectedRoute module="inventarios.proveedores">
                 <MainLayout>
                   <ProveedoresPage />
                 </MainLayout>
@@ -155,7 +155,7 @@ export default function AppRouter() {
           <Route
             path="/inventarios/traslados/nuevo"
             element={
-              <ProtectedRoute module="inventarios">
+              <ProtectedRoute module="inventarios.traslados">
                 <MainLayout>
                   <TrasladosPage mode="create" />
                 </MainLayout>
@@ -165,7 +165,7 @@ export default function AppRouter() {
           <Route
             path="/inventarios/traslados"
             element={
-              <ProtectedRoute module="inventarios">
+              <ProtectedRoute module="inventarios.traslados">
                 <MainLayout>
                   <TrasladosPage mode="history" />
                 </MainLayout>
@@ -175,7 +175,7 @@ export default function AppRouter() {
           <Route
             path="/ventas/facturas/crear"
             element={
-              <ProtectedRoute module="ventas">
+              <ProtectedRoute module="ventas.facturas">
                 <MainLayout>
                   <CrearFacturaPage />
                 </MainLayout>
@@ -185,7 +185,7 @@ export default function AppRouter() {
           <Route
             path="/ventas/facturas"
             element={
-              <ProtectedRoute module="ventas">
+              <ProtectedRoute module="ventas.facturas">
                 <MainLayout>
                   <FacturasPage />
                 </MainLayout>
@@ -199,7 +199,7 @@ export default function AppRouter() {
           <Route
             path="/caja/apertura-cierre"
             element={
-              <ProtectedRoute module="caja">
+              <ProtectedRoute module="caja.apertura">
                 <MainLayout>
                   <ControlCajaPage />
                 </MainLayout>
@@ -209,7 +209,7 @@ export default function AppRouter() {
           <Route
             path="/caja/cierres"
             element={
-              <ProtectedRoute module="caja">
+              <ProtectedRoute module="caja.cierres">
                 <MainLayout>
                   <ControlCajaPage mode="closures" />
                 </MainLayout>
@@ -227,7 +227,7 @@ export default function AppRouter() {
           <Route
             path="/clientes/listado"
             element={
-              <ProtectedRoute module="clientes">
+              <ProtectedRoute module="clientes.listado">
                 <MainLayout>
                   <ClientesPage mode="list" />
                 </MainLayout>
@@ -245,25 +245,25 @@ export default function AppRouter() {
           <Route
             path="/reportes/consolidado"
             element={
-              <ProtectedRoute module="reportes">
+              <ProtectedRoute module="reportes.consolidado">
                 <MainLayout>
                   <ReportesPage />
                 </MainLayout>
               </ProtectedRoute>
             }
           />
-          <Route path="/reportes/ganancias" element={<ProtectedRoute module="reportes"><MainLayout><ControlGananciasPage /></MainLayout></ProtectedRoute>} />
+          <Route path="/reportes/ganancias" element={<ProtectedRoute module="reportes.ganancias"><MainLayout><ControlGananciasPage /></MainLayout></ProtectedRoute>} />
           <Route
             path="/configuracion/datos-maestros"
             element={
-              <ProtectedRoute module="configuracion">
+              <ProtectedRoute module="configuracion.datos">
                 <MainLayout>
                   <DatosMaestrosPage />
                 </MainLayout>
               </ProtectedRoute>
             }
           />
-          <Route path="/configuracion/usuarios" element={<ProtectedRoute module="configuracion"><MainLayout><TrabajadoresPage mode="users" /></MainLayout></ProtectedRoute>} />
+          <Route path="/configuracion/usuarios" element={<ProtectedRoute module="configuracion.usuarios"><MainLayout><TrabajadoresPage mode="users" /></MainLayout></ProtectedRoute>} />
           <Route
             path="/cobros"
             element={<Navigate to="/cobros/listado" replace />}
@@ -271,7 +271,7 @@ export default function AppRouter() {
           <Route
             path="/cobros/estado-cuenta"
             element={
-              <ProtectedRoute module="cobros">
+              <ProtectedRoute module="cobros.estado">
                 <MainLayout>
                   <CobrosPage mode="statement" />
                 </MainLayout>
@@ -281,7 +281,7 @@ export default function AppRouter() {
           <Route
             path="/cobros/pagar"
             element={
-              <ProtectedRoute module="cobros">
+              <ProtectedRoute module="cobros.abonos">
                 <MainLayout>
                   <CobrosPage mode="pay" />
                 </MainLayout>
@@ -291,7 +291,7 @@ export default function AppRouter() {
           <Route
             path="/cobros/listado"
             element={
-              <ProtectedRoute module="cobros">
+              <ProtectedRoute module="cobros.listado">
                 <MainLayout>
                   <CobrosPage mode="list" />
                 </MainLayout>
@@ -301,7 +301,7 @@ export default function AppRouter() {
           <Route
             path="/cobros/autorizar"
             element={
-              <ProtectedRoute module="cobros">
+              <ProtectedRoute module="cobros.autorizar">
                 <MainLayout>
                   <CobrosPage mode="authorize" />
                 </MainLayout>
@@ -325,7 +325,7 @@ export default function AppRouter() {
           <Route
             path="/trabajadores/registro"
             element={
-              <ProtectedRoute module="trabajadores">
+              <ProtectedRoute module="trabajadores.registro">
                 <MainLayout>
                   <TrabajadoresPage mode="register" />
                 </MainLayout>
@@ -335,7 +335,7 @@ export default function AppRouter() {
           <Route
             path="/trabajadores/kpis"
             element={
-              <ProtectedRoute module="trabajadores">
+              <ProtectedRoute module="trabajadores.kpis">
                 <MainLayout>
                   <TrabajadoresPage mode="kpis" />
                 </MainLayout>
@@ -345,7 +345,7 @@ export default function AppRouter() {
           <Route
             path="/trabajadores/evaluacion"
             element={
-              <ProtectedRoute module="trabajadores">
+              <ProtectedRoute module="trabajadores.evaluacion">
                 <MainLayout>
                   <TrabajadoresPage mode="evaluation" />
                 </MainLayout>
@@ -355,7 +355,7 @@ export default function AppRouter() {
           <Route
             path="/trabajadores/ventas"
             element={
-              <ProtectedRoute module="trabajadores">
+              <ProtectedRoute module="trabajadores.ventas">
                 <MainLayout>
                   <TrabajadoresPage mode="sales" />
                 </MainLayout>
@@ -365,7 +365,7 @@ export default function AppRouter() {
           <Route
             path="/trabajadores/planilla"
             element={
-              <ProtectedRoute module="trabajadores">
+              <ProtectedRoute module="trabajadores.planilla">
                 <MainLayout>
                   <PlanillaPage />
                 </MainLayout>

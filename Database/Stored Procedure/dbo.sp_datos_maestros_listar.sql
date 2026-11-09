@@ -10,7 +10,7 @@ BEGIN
     ELSE IF @Entidad = 'proveedores'
         SELECT id_proveedor Id, nombre Nombre, telefono Telefono, direccion Direccion, activo Activo FROM dbo.proveedor WHERE @Query='' OR nombre LIKE '%'+@Query+'%' ORDER BY nombre;
     ELSE IF @Entidad = 'productos'
-        SELECT p.id_producto Id, p.cod_producto Codigo, p.nombre Nombre, p.descripcion Descripcion, p.precio Precio, p.id_categoria IdCategoria, cp.nombre Categoria
+        SELECT p.id_producto Id, p.cod_producto Codigo, p.nombre Nombre, p.descripcion Descripcion, p.costo Costo, p.precio Precio, p.id_categoria IdCategoria, cp.nombre Categoria
         FROM dbo.producto p LEFT JOIN dbo.categoria_producto cp ON cp.id_categoria=p.id_categoria
         WHERE @Query='' OR p.nombre LIKE '%'+@Query+'%' OR p.cod_producto LIKE '%'+@Query+'%' OR cp.nombre LIKE '%'+@Query+'%' ORDER BY p.nombre;
     ELSE IF @Entidad = 'proveedor-producto'

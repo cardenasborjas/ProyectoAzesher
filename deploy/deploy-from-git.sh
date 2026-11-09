@@ -88,6 +88,12 @@ docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
 docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
   /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -I -d AZESHERBD \
   < Database/Migrations/20261102_sucursales_activas.sql
+docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
+  /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -I -d AZESHERBD \
+  < Database/Migrations/20261108_costos_historicos_productos.sql
+docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
+  /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -I -d AZESHERBD \
+  < Database/Migrations/20261108_permisos_submodulos.sql
 
 # Los procedimientos viven en el host del despliegue, no dentro del contenedor
 # de SQL Server. Se envían individualmente por stdin para evitar rutas :r.
@@ -104,6 +110,7 @@ PROVEEDORES_VENDEDORES_PROCEDURES=(
   "Database/Stored Procedure/dbo.sp_obtener_inventario_productos_core.sql"
   "Database/Stored Procedure/dbo.sp_autorizar_venta_core.sql"
   "Database/Stored Procedure/dbo.sp_obtener_sucursales_core.sql"
+  "Database/Stored Procedure/dbo.sp_trabajadores_core.sql"
 )
 for procedure_file in "${PROVEEDORES_VENDEDORES_PROCEDURES[@]}"; do
   docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \

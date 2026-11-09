@@ -12,7 +12,8 @@ const dateTime = new Intl.DateTimeFormat('es-GT', { dateStyle: 'short', timeStyl
 export default function InventarioProductosPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { selectedSucursalId, sucursales, isAdministrator } = useAuth();
+  const { selectedSucursalId, sucursales, isAdministrator, hasModuleAccess } = useAuth();
+  const canManageProducts = isAdministrator || hasModuleAccess('configuracion.datos');
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
@@ -147,7 +148,8 @@ export default function InventarioProductosPage() {
     }
   };
 
-  return <div className="mx-auto max-w-[1500px] space-y-5">
+  return <div className="mx-auto max-w-[1500px] space-y-5" data-price-actions={canManageProducts ? "visible" : "hidden"}>
+    {!canManageProducts && <style>{'[data-price-actions="hidden"] table tbody tr > td:last-child > button { display: none; }'}</style>}
     <NotificationToast notification={notification} onClose={() => setNotification(null)} />
     <section className="page-title p-5 sm:p-6"><div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between"><div><h1 className="text-2xl font-bold text-slate-900">Inventario · {branch?.nombreSuc || branch?.nombre || 'Sucursal'}</h1><p className="mt-1 text-sm text-slate-500">Selecciona un producto para consultar sus movimientos recientes.</p></div><div className="min-w-[260px] border-l-4 border-[var(--branch-color)] bg-white/60 px-4 py-3 text-sm"><span className="font-semibold text-slate-800">{dateTime.format(now)}</span><span className="mt-1 block text-xs text-slate-500">Actualizado: {lastUpdated ? dateTime.format(lastUpdated) : 'Pendiente'}</span></div></div></section>
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Metric label="Productos" value={products.length} detail={`${totals.units} unidades`} /><Metric label="Valor registrado" value={currency.format(totals.value)} detail="Según precio actual" /><Metric label="Existencia baja" value={totals.low} detail="Entre 1 y 5 unidades" /><Metric label="Sin existencias" value={totals.empty} detail="Productos con stock cero" /></section>

@@ -21,7 +21,7 @@ BEGIN
  DECLARE @IdCompra INT=CAST(SCOPE_IDENTITY() AS INT);
  UPDATE dbo.compra SET numero_pedido=CONCAT('PED-',RIGHT('00000000'+CAST(@IdCompra AS VARCHAR(10)),8)) WHERE id_compra=@IdCompra;
  INSERT dbo.detalle_compra(id_compra,id_producto,cantidad,costo_unitario,subtotal) SELECT @IdCompra,IdProducto,Cantidad,CostoUnitario,Cantidad*CostoUnitario FROM @Detalle;
- UPDATE p SET precio=d.PrecioVenta FROM dbo.producto p INNER JOIN @Detalle d ON d.IdProducto=p.id_producto;
+ UPDATE p SET costo=d.CostoUnitario,precio=d.PrecioVenta FROM dbo.producto p INNER JOIN @Detalle d ON d.IdProducto=p.id_producto;
  MERGE dbo.inventario AS t USING(SELECT IdProducto,SUM(Cantidad) Cantidad FROM @Detalle GROUP BY IdProducto) s ON t.id_sucursal=@IdSucursal AND t.id_producto=s.IdProducto
  WHEN MATCHED THEN UPDATE SET stock=t.stock+s.Cantidad WHEN NOT MATCHED THEN INSERT(id_sucursal,id_producto,stock) VALUES(@IdSucursal,s.IdProducto,s.Cantidad);
  COMMIT; SELECT @IdCompra IdCompra,@Total Total;

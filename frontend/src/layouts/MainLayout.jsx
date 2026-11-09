@@ -169,55 +169,14 @@ export default function MainLayout({ children }) {
           )}
           {hasModuleAccess("inventarios") && isInventariosOpen && (
             <div className="ml-5 hidden space-y-1 border-l border-slate-200 pl-3 md:block">
-              <NavLink
-                to="/inventarios/productos"
-                className={({ isActive }) =>
-                  `hidden items-center gap-2 rounded-lg px-3 py-2 text-sm md:flex ${isActive ? "bg-teal-50 font-semibold text-brand-teal" : "text-slate-600 hover:bg-slate-50"}`
-                }
-              >
-                <PackageSearch className="h-4 w-4" />
-                Listado de productos
-              </NavLink>
-              <NavLink
-                to="/inventarios/entrada-pedido"
-                className={({ isActive }) =>
-                  `flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${isActive ? "bg-teal-50 font-semibold text-brand-teal" : "text-slate-600 hover:bg-slate-50"}`
-                }
-              >
-                <ClipboardList className="h-4 w-4" />
-                Entrada de pedido
-              </NavLink>
-              <NavLink to="/inventarios/salidas" className={({ isActive }) => `flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${isActive ? "bg-teal-50 font-semibold text-brand-teal" : "text-slate-600 hover:bg-slate-50"}`}><PackageSearch className="h-4 w-4" />Salida de producto</NavLink>
-              <NavLink
-                to="/inventarios/proveedores"
-                className={({ isActive }) =>
-                  `flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${isActive ? "bg-teal-50 font-semibold text-brand-teal" : "text-slate-600 hover:bg-slate-50"}`
-                }
-              >
-                <Truck className="h-4 w-4" />
-                Proveedores
-              </NavLink>
+              <SubLink to="/inventarios/productos" icon={PackageSearch} className="hidden md:flex" permission="inventarios.productos">Listado de productos</SubLink>
+              <SubLink to="/inventarios/entrada-pedido" icon={ClipboardList} permission="inventarios.entradas">Entrada de pedido</SubLink>
+              <SubLink to="/inventarios/salidas" icon={PackageSearch} permission="inventarios.salidas">Salida de producto</SubLink>
+              <SubLink to="/inventarios/proveedores" icon={Truck} permission="inventarios.proveedores">Proveedores</SubLink>
               {isAdministrator && (
                 <>
-                  <NavLink
-                    to="/inventarios/traslados/nuevo"
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${isActive ? "bg-teal-50 font-semibold text-brand-teal" : "text-slate-600 hover:bg-slate-50"}`
-                    }
-                  >
-                    <ClipboardList className="h-4 w-4" />
-                    Nuevo traslado
-                  </NavLink>
-                  <NavLink
-                    to="/inventarios/traslados"
-                    end
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${isActive ? "bg-teal-50 font-semibold text-brand-teal" : "text-slate-600 hover:bg-slate-50"}`
-                    }
-                  >
-                    <History className="h-4 w-4" />
-                    Historial de traslados
-                  </NavLink>
+                  <SubLink to="/inventarios/traslados/nuevo" icon={ClipboardList} permission="inventarios.traslados">Nuevo traslado</SubLink>
+                  <SubLink to="/inventarios/traslados" icon={History} permission="inventarios.traslados">Historial de traslados</SubLink>
                 </>
               )}
             </div>
@@ -239,44 +198,10 @@ export default function MainLayout({ children }) {
           )}
           {hasModuleAccess("ventas") && isVentasOpen && (
             <div className="ml-5 space-y-1 border-l border-slate-200 pl-3">
-              <NavLink
-                to="/ventas"
-                end
-                className={({ isActive }) =>
-                  `flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${isActive ? "bg-teal-50 font-semibold text-brand-teal" : "text-slate-600 hover:bg-slate-50"}`
-                }
-              >
-                <ShoppingCart className="h-4 w-4" />
-                Venta de productos
-              </NavLink>
-              <NavLink
-                to="/ventas/recibos"
-                className={({ isActive }) =>
-                  `hidden items-center gap-2 rounded-lg px-3 py-2 text-sm md:flex ${isActive ? "bg-teal-50 font-semibold text-brand-teal" : "text-slate-600 hover:bg-slate-50"}`
-                }
-              >
-                <ReceiptText className="h-4 w-4" />
-                Recibos
-              </NavLink>
-              <NavLink
-                to="/ventas/facturas/crear"
-                className={({ isActive }) =>
-                  `hidden items-center gap-2 rounded-lg px-3 py-2 text-sm md:flex ${isActive ? "bg-teal-50 font-semibold text-brand-teal" : "text-slate-600 hover:bg-slate-50"}`
-                }
-              >
-                <FilePlus2 className="h-4 w-4" />
-                Crear factura
-              </NavLink>
-              <NavLink
-                to="/ventas/facturas"
-                end
-                className={({ isActive }) =>
-                  `hidden items-center gap-2 rounded-lg px-3 py-2 text-sm md:flex ${isActive ? "bg-teal-50 font-semibold text-brand-teal" : "text-slate-600 hover:bg-slate-50"}`
-                }
-              >
-                <Files className="h-4 w-4" />
-                Listado de facturas
-              </NavLink>
+              <SubLink to="/ventas" icon={ShoppingCart} permission="ventas.venta">Venta de productos</SubLink>
+              <SubLink to="/ventas/recibos" icon={ReceiptText} className="hidden md:flex" permission="ventas.recibos">Recibos</SubLink>
+              <SubLink to="/ventas/facturas/crear" icon={FilePlus2} className="hidden md:flex" permission="ventas.facturas">Crear factura</SubLink>
+              <SubLink to="/ventas/facturas" icon={Files} className="hidden md:flex" permission="ventas.facturas">Listado de facturas</SubLink>
             </div>
           )}
           {hasModuleAccess("caja") && (
@@ -288,10 +213,10 @@ export default function MainLayout({ children }) {
               active={location.pathname.startsWith("/caja")}
               onClick={() => setIsCajaOpen((value) => !value)}
             >
-              <SubLink to="/caja/apertura-cierre" icon={Banknote}>
+              <SubLink to="/caja/apertura-cierre" icon={Banknote} permission="caja.apertura">
                 Apertura y cierre
               </SubLink>
-              <SubLink to="/caja/cierres" icon={History}>
+              <SubLink to="/caja/cierres" icon={History} permission="caja.cierres">
                 Listado de cierres
               </SubLink>
             </MenuGroup>
@@ -305,10 +230,10 @@ export default function MainLayout({ children }) {
               active={location.pathname.startsWith("/clientes")}
               onClick={() => setIsClientesOpen((value) => !value)}
             >
-              <SubLink to="/clientes/crear" icon={UserRoundPlus}>
+              <SubLink to="/clientes/crear" icon={UserRoundPlus} permission="clientes.listado">
                 Crear cliente
               </SubLink>
-              <SubLink to="/clientes/listado" icon={History}>
+              <SubLink to="/clientes/listado" icon={History} permission="clientes.listado">
                 Listado de clientes
               </SubLink>
             </MenuGroup>
@@ -321,17 +246,17 @@ export default function MainLayout({ children }) {
               active={location.pathname.startsWith("/cobros")}
               onClick={() => setIsCobrosOpen((value) => !value)}
             >
-              <SubLink to="/cobros/estado-cuenta" icon={ReceiptText} className="hidden md:flex">
+              <SubLink to="/cobros/estado-cuenta" icon={ReceiptText} className="hidden md:flex" permission="cobros.estado">
                 Estado de cuenta
               </SubLink>
-              <SubLink to="/cobros/pagar" icon={Banknote} className="hidden md:flex">
+              <SubLink to="/cobros/pagar" icon={Banknote} className="hidden md:flex" permission="cobros.abonos">
                 Pagar abono
               </SubLink>
-              <SubLink to="/cobros/listado" icon={ListChecks} className="hidden md:flex">
+              <SubLink to="/cobros/listado" icon={ListChecks} className="hidden md:flex" permission="cobros.listado">
                 Listado de cobros
               </SubLink>
               {isAdministrator && (
-                <SubLink to="/cobros/autorizar" icon={ShieldCheck}>
+                <SubLink to="/cobros/autorizar" icon={ShieldCheck} permission="cobros.autorizar">
                   Autorizar crédito
                 </SubLink>
               )}
@@ -346,10 +271,10 @@ export default function MainLayout({ children }) {
               active={location.pathname.startsWith("/reportes")}
               onClick={() => setIsReportesOpen((value) => !value)}
             >
-              <SubLink to="/reportes/consolidado" icon={BarChart3}>
+              <SubLink to="/reportes/consolidado" icon={BarChart3} permission="reportes.consolidado">
                 Listado de reportes
               </SubLink>
-              <SubLink to="/reportes/ganancias" icon={TrendingUp}>
+              <SubLink to="/reportes/ganancias" icon={TrendingUp} permission="reportes.ganancias">
                 Control de ganancias
               </SubLink>
             </MenuGroup>
@@ -364,27 +289,32 @@ export default function MainLayout({ children }) {
               onClick={() => setIsTrabajadoresOpen((value) => !value)}
             >
               {isAdministrator && (
-                <SubLink to="/trabajadores/registro" icon={UserRoundPlus}>
+                <SubLink to="/trabajadores/registro" icon={UserRoundPlus} permission="trabajadores.registro">
                   Registro
                 </SubLink>
               )}
-              <SubLink to="/trabajadores/kpis" icon={BarChart3}>
+              <SubLink to="/trabajadores/kpis" icon={BarChart3} permission="trabajadores.kpis">
                 KPIs
               </SubLink>
               {isAdministrator && (
-                <SubLink to="/trabajadores/evaluacion" icon={Star}>
+                <SubLink to="/trabajadores/evaluacion" icon={Star} permission="trabajadores.evaluacion">
                   Evaluar trabajador
                 </SubLink>
               )}
-              <SubLink to="/trabajadores/ventas" icon={ReceiptText}>
+              <SubLink to="/trabajadores/ventas" icon={ReceiptText} permission="trabajadores.ventas">
                 Ventas por trabajador
               </SubLink>
-              <SubLink to="/trabajadores/planilla" icon={Banknote}>
+              <SubLink to="/trabajadores/planilla" icon={Banknote} permission="trabajadores.planilla">
                 Planilla
               </SubLink>
             </MenuGroup>
           )}
-          {hasModuleAccess("configuracion") && <MenuGroup mobileHidden label="Configuración" icon={Settings2} open={isConfigOpen} active={location.pathname.startsWith("/configuracion")} onClick={() => setIsConfigOpen((value) => !value)}><SubLink to="/configuracion/datos-maestros" icon={Settings2}>Datos maestros</SubLink>{isAdministrator && <SubLink to="/configuracion/usuarios" icon={UserIcon}>Usuarios</SubLink>}</MenuGroup>}
+          {hasModuleAccess("configuracion") && (
+            <MenuGroup mobileHidden label="Configuración" icon={Settings2} open={isConfigOpen} active={location.pathname.startsWith("/configuracion")} onClick={() => setIsConfigOpen((value) => !value)}>
+              <SubLink to="/configuracion/datos-maestros" icon={Settings2} permission="configuracion.datos">Datos maestros</SubLink>
+              {isAdministrator && <SubLink to="/configuracion/usuarios" icon={UserIcon} permission="configuracion.usuarios">Usuarios</SubLink>}
+            </MenuGroup>
+          )}
           {isAdministrator && (
             <NavLink to="/bitacora" className={({ isActive }) => `hidden items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium md:flex ${isActive ? "bg-brand-teal text-white" : "text-slate-600 hover:bg-slate-50"}`}>
               <ScrollText className="h-5 w-5" />
@@ -509,7 +439,10 @@ function MenuGroup({ label, icon: Icon, open, active, onClick, children, mobileH
   );
 }
 
-function SubLink({ to, icon: Icon, children, className = "" }) {
+function SubLink({ to, icon: Icon, children, className = "", permission }) {
+  const { hasModuleAccess } = useAuth();
+  if (permission && !hasModuleAccess(permission)) return null;
+
   return (
     <NavLink
       to={to}
