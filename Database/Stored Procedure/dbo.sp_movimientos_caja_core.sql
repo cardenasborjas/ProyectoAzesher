@@ -11,6 +11,7 @@ BEGIN
         FROM dbo.venta v JOIN dbo.factura f ON f.id_venta=v.id_venta JOIN dbo.recibo r ON r.id_factura=f.id_factura WHERE v.id_sesion=@Id
         UNION ALL
         SELECT 'Entrada de pedido',c.numero_pedido,c.fecha,c.metodo_pago,-c.total,'Registrada' FROM dbo.compra c WHERE c.id_sesion=@Id
+        UNION ALL SELECT 'Pago a proveedor',c.numero_pedido,cp.fecha,cp.metodo_pago,-cp.monto,'Registrado' FROM dbo.compra_pago cp JOIN dbo.compra c ON c.id_compra=cp.id_compra WHERE cp.id_sesion=@Id
         UNION ALL
         SELECT 'Abono',a.numero_abono,a.fecha,a.metodo_pago,a.monto,'Registrado' FROM dbo.abono a WHERE a.id_sesion=@Id
         UNION ALL

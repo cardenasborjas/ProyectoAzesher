@@ -21,6 +21,7 @@ public class OperacionProvider(IConfiguration cfg):IOperacionProviderDTO {
  DECLARE @Gastos DECIMAL(18,2)=(SELECT ISNULL(SUM(m.monto),0) FROM dbo.movimiento_caja_manual m JOIN dbo.sesion_caja s ON s.id_sesion=m.id_sesion WHERE s.id_sucursal=@Branch AND CAST(m.fecha AS DATE) BETWEEN @From AND @To);
  SELECT @Ventas Ventas,@Costo CostoVentas,@Ventas-@Costo UtilidadBruta,@Gastos GastosOperativos,@Ventas-@Costo-@Gastos UtilidadNeta,CASE WHEN @Ventas=0 THEN 0 ELSE ((@Ventas-@Costo)/@Ventas)*100 END MargenBrutoPorcentaje,
  (SELECT ISNULL(SUM(cx.saldo_pendiente),0) FROM dbo.cuenta_cobrar cx JOIN dbo.venta v ON v.id_venta=cx.id_venta JOIN dbo.sesion_caja s ON s.id_sesion=v.id_sesion WHERE s.id_sucursal=@Branch AND cx.estado='Pendiente') CuentasPorCobrar,
- (SELECT ISNULL(SUM(c.total),0) FROM dbo.compra c WHERE c.id_sucursal=@Branch AND CAST(c.fecha AS DATE) BETWEEN @From AND @To) Compras;
+ (SELECT ISNULL(SUM(c.total),0) FROM dbo.compra c WHERE c.id_sucursal=@Branch AND CAST(c.fecha AS DATE) BETWEEN @From AND @To) Compras,
+ (SELECT ISNULL(SUM(cp.monto),0) FROM dbo.compra_pago cp JOIN dbo.compra c ON c.id_compra=cp.id_compra WHERE c.id_sucursal=@Branch AND CAST(cp.fecha AS DATE) BETWEEN @From AND @To) PagosProveedores;
  """,new{Branch=branch,From=from.Date,To=to.Date});}
 }

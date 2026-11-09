@@ -62,6 +62,11 @@ public class InventarioProvider(IConfiguration configuration) : IInventarioProvi
     public async Task<List<ProveedorEntradaDTO>> ObtenerProveedoresAsync() => await QueryList<ProveedorEntradaDTO>("dbo.sp_obtener_proveedores_entrada", null);
     public async Task<List<EntradaPedidoConsultaDTO>> BuscarEntradasAsync(int idSucursal, string query) => await QueryList<EntradaPedidoConsultaDTO>("dbo.sp_buscar_entradas_pedido", new { IdSucursal = idSucursal, Query = query?.Trim() ?? "" });
     public async Task<List<EntradaPedidoProductoDTO>> ObtenerEntradaAsync(int idCompra, int idSucursal) => await QueryList<EntradaPedidoProductoDTO>("dbo.sp_obtener_entrada_pedido", new { IdCompra = idCompra, IdSucursal = idSucursal });
+    public async Task<int> RegistrarPagoCompraAsync(int idCompra, int idSucursal, int idUsuario, RegistrarPagoCompraDTO pago)
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        return await connection.QuerySingleAsync<int>("dbo.sp_registrar_pago_compra", new { IdCompra = idCompra, IdSucursal = idSucursal, IdUsuario = idUsuario, pago.Monto, pago.MetodoPago, pago.Fecha, pago.Referencia, pago.Observaciones }, commandType: CommandType.StoredProcedure);
+    }
 
     public async Task<int> CrearProductoAsync(CrearProductoEntradaDTO product)
     {

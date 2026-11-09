@@ -171,6 +171,7 @@ export default function MainLayout({ children }) {
             <div className="ml-5 hidden space-y-1 border-l border-slate-200 pl-3 md:block">
               <SubLink to="/inventarios/productos" icon={PackageSearch} className="hidden md:flex" permission="inventarios.productos">Listado de productos</SubLink>
               <SubLink to="/inventarios/entrada-pedido" icon={ClipboardList} permission="inventarios.entradas">Entrada de pedido</SubLink>
+              <SubLink to="/inventarios/entradas" icon={History} permission="inventarios.entradas">Historial de entradas</SubLink>
               <SubLink to="/inventarios/salidas" icon={PackageSearch} permission="inventarios.salidas">Salida de producto</SubLink>
               <SubLink to="/inventarios/proveedores" icon={Truck} permission="inventarios.proveedores">Proveedores</SubLink>
               {isAdministrator && (

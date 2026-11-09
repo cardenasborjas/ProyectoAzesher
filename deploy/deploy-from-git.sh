@@ -94,6 +94,9 @@ docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
 docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
   /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -I -d AZESHERBD \
   < Database/Migrations/20261108_permisos_submodulos.sql
+docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \
+  /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -I -d AZESHERBD \
+  < Database/Migrations/20261109_pagos_compras.sql
 
 # Los procedimientos viven en el host del despliegue, no dentro del contenedor
 # de SQL Server. Se envían individualmente por stdin para evitar rutas :r.
@@ -106,11 +109,15 @@ PROVEEDORES_VENDEDORES_PROCEDURES=(
   "Database/Stored Procedure/dbo.sp_crear_producto_entrada_core.sql"
   "Database/Stored Procedure/dbo.sp_buscar_productos_entrada_core.sql"
   "Database/Stored Procedure/dbo.sp_registrar_entrada_pedido_core.sql"
+  "Database/Stored Procedure/dbo.sp_buscar_entradas_pedido_core.sql"
   "Database/Stored Procedure/dbo.sp_obtener_entrada_pedido_core.sql"
   "Database/Stored Procedure/dbo.sp_obtener_inventario_productos_core.sql"
   "Database/Stored Procedure/dbo.sp_autorizar_venta_core.sql"
   "Database/Stored Procedure/dbo.sp_obtener_sucursales_core.sql"
   "Database/Stored Procedure/dbo.sp_trabajadores_core.sql"
+  "Database/Stored Procedure/dbo.sp_estado_caja_core.sql"
+  "Database/Stored Procedure/dbo.sp_cerrar_caja_core.sql"
+  "Database/Stored Procedure/dbo.sp_movimientos_caja_core.sql"
 )
 for procedure_file in "${PROVEEDORES_VENDEDORES_PROCEDURES[@]}"; do
   docker compose exec -T -e "SQLCMDPASSWORD=${MSSQL_SA_PASSWORD}" database \

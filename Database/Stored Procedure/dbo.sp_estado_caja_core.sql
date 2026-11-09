@@ -5,7 +5,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_estado_caja_core @IdUsuario INT,@IdSucursal INT
  ISNULL(SUM(CASE WHEN v.tipo_pago='transferencia' AND ISNULL(r.estado,'')<>'Anulado' THEN r.monto ELSE 0 END),0) VentasTransferencia,
  ISNULL(SUM(CASE WHEN v.tipo_pago='credito' AND ISNULL(r.estado,'')<>'Anulado' THEN r.monto ELSE 0 END),0) VentasCredito,
  ISNULL(SUM(CASE WHEN ISNULL(r.estado,'')<>'Anulado' THEN r.monto ELSE 0 END),0) VentasTotales,
- (SELECT ISNULL(SUM(c.total),0) FROM dbo.compra c WHERE c.id_sesion=sc.id_sesion AND c.metodo_pago='efectivo') ComprasEfectivo,
+ (SELECT ISNULL(SUM(c.total),0) FROM dbo.compra c WHERE c.id_sesion=sc.id_sesion AND c.metodo_pago='efectivo')+(SELECT ISNULL(SUM(cp.monto),0) FROM dbo.compra_pago cp WHERE cp.id_sesion=sc.id_sesion AND cp.metodo_pago='efectivo') ComprasEfectivo,
  (SELECT ISNULL(SUM(a.monto),0) FROM dbo.abono a WHERE a.id_sesion=sc.id_sesion AND a.metodo_pago='efectivo') AbonosEfectivo,
  (SELECT ISNULL(SUM(m.monto),0) FROM dbo.movimiento_caja_manual m WHERE m.id_sesion=sc.id_sesion AND m.tipo='salida') SalidasEfectivo
  FROM dbo.sesion_caja sc LEFT JOIN dbo.venta v ON v.id_sesion=sc.id_sesion LEFT JOIN dbo.factura f ON f.id_venta=v.id_venta LEFT JOIN dbo.recibo r ON r.id_factura=f.id_factura

@@ -68,6 +68,19 @@ public class InventarioController(IInventarioProviderDTO inventarioProvider, Not
         return File(EntradaPedidoDocumentService.GeneratePdf(rows), "application/pdf", $"entrada-productos-{rows[0].NumeroPedido}.pdf");
     }
 
+    [HttpPost("entradas/{idCompra:int}/pagos")]
+    public async Task<IActionResult> RegistrarPagoEntrada(int idCompra, [FromBody] RegistrarPagoCompraDTO payment)
+    {
+        var branchId = ResolveBranch(payment.IdSucursal); if (!branchId.HasValue) return BranchRequired();
+        var userId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : 0;
+        try
+        {
+            var paymentId = await inventarioProvider.RegistrarPagoCompraAsync(idCompra, branchId.Value, userId, payment);
+            return Ok(new ApiResponse<object> { Success = true, Message = "Pago del pedido registrado.", Data = new { IdPago = paymentId } });
+        }
+        catch (Exception ex) { return BadRequest(new ApiResponse<object> { Success = false, Message = ex.Message }); }
+    }
+
     [HttpGet("productos")]
     public async Task<IActionResult> ObtenerProductos([FromQuery] int? idSucursal, [FromQuery] string? query = null)
     {

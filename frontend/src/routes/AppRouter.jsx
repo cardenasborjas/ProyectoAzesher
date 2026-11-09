@@ -8,6 +8,7 @@ import MainLayout from "../layouts/MainLayout";
 import RecibosPage from "../pages/RecibosPage";
 import InventarioProductosPage from "../pages/InventarioProductosPage";
 import EntradaPedidoPage from "../pages/EntradaPedidoPage";
+import HistorialEntradasPage from "../pages/HistorialEntradasPage";
 import CrearFacturaPage from "../pages/CrearFacturaPage";
 import FacturasPage from "../pages/FacturasPage";
 import ProveedoresPage from "../pages/ProveedoresPage";
@@ -141,6 +142,7 @@ export default function AppRouter() {
               </ProtectedRoute>
             }
           />
+          <Route path="/inventarios/entradas" element={<ProtectedRoute module="inventarios.entradas"><MainLayout><HistorialEntradasPage /></MainLayout></ProtectedRoute>} />
           <Route path="/inventarios/salidas" element={<ProtectedRoute module="inventarios.salidas"><MainLayout><SalidaInventarioPage /></MainLayout></ProtectedRoute>} />
           <Route
             path="/inventarios/proveedores"
