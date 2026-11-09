@@ -1,9 +1,14 @@
-export const openBlobInNewTab = (blob) => {
+export const openBlobInNewTab = (blob, fileName = 'documento.pdf') => {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.target = '_blank';
-  anchor.rel = 'noopener noreferrer';
+  const isOpera = /(?:OPR|Opera)\//i.test(navigator.userAgent);
+  if (isOpera) {
+    anchor.download = fileName;
+  } else {
+    anchor.target = '_blank';
+    anchor.rel = 'noopener noreferrer';
+  }
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();

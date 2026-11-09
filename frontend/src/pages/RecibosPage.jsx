@@ -80,7 +80,7 @@ export default function RecibosPage() {
             const files = await Promise.all(selected.map(receipt => axiosClient.get(receipt.tipoAbono ? `/cobros/abonos/${receipt.idAbono}/pdf` : `/ventas/recibos/${receipt.idRecibo}/${format}`, { responseType: 'blob' })));
             files.forEach((response, index) => {
                 if (format === 'pdf') {
-                    openBlobInNewTab(response.data);
+                    openBlobInNewTab(response.data, `${selected[index].numeroRecibo}.pdf`);
                 } else {
                     downloadBlob(response.data, format === 'docx' ? `${selected[index].numeroRecibo}.docx` : `detalle-${selected[index].numeroRecibo}.xlsx`);
                 }
@@ -90,7 +90,7 @@ export default function RecibosPage() {
         } finally { setExporting(false); }
     };
     const viewInvoice = async receipt => {
-        try { const response = await axiosClient.get(`/facturacion/${receipt.idFactura}/pdf`, { responseType: 'blob' }); openBlobInNewTab(response.data); }
+        try { const response = await axiosClient.get(`/facturacion/${receipt.idFactura}/pdf`, { responseType: 'blob' }); openBlobInNewTab(response.data, `${receipt.numeroFactura || receipt.numeroRecibo || 'factura'}.pdf`); }
         catch { setNotification({ message: 'No fue posible abrir la factura.', type: 'error' }); }
     };
     const cancelReceipt = async () => {
